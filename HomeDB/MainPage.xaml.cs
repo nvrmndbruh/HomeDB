@@ -1,25 +1,25 @@
-﻿namespace HomeDB
+﻿using HomeDB.Data;
+
+namespace HomeDB
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
+        private readonly DatabaseService _database;
 
-        public MainPage()
+        public MainPage(DatabaseService database)
         {
             InitializeComponent();
+            _database = database;
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
-        {
-            count++;
+        //public MainPage()
+        //{
+        //    InitializeComponent();
+        //}
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
-        }
+        //private async void OnCounterClicked(object sender, EventArgs e)
+        //{
+            
+        //}
     }
-
 }
