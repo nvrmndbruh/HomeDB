@@ -1,16 +1,10 @@
-﻿using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HomeDB.Model
+namespace HomeDB.Models
 {
     [Table("container")]
     public class Container
     {
-        [PrimaryKey, AutoIncrement]
         [Column("id")]
         public int Id { get; set; }
 
@@ -19,5 +13,7 @@ namespace HomeDB.Model
 
         [Column("icon")]
         public string Icon { get; set; }
+
+        public List<Hierarchy> ChildHierarchies { get; set; } = new List<Hierarchy>();
     }
 }

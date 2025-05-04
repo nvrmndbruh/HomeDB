@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SQLite;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HomeDB.Model
+namespace HomeDB.Models
 {
+    public enum ChildType { Container, Item }
+
     [Table("hierarchy")]
     public class Hierarchy
     {
-        [PrimaryKey, AutoIncrement]
         [Column("id")]
         public int Id { get; set; }
 
@@ -21,6 +17,8 @@ namespace HomeDB.Model
         public int ChildId { get; set; }
 
         [Column("child_type")]
-        public string ChildType { get; set; }
+        public ChildType ChildType { get; set; }
+
+        public Container Parent { get; set; }
     }
 }

@@ -1,5 +1,4 @@
-﻿using HomeDB.Data;
-using HomeDB.Model;
+﻿using HomeDB.Models;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
 
@@ -21,7 +20,7 @@ public static class MauiProgram
 			});
 
 		builder.Services.AddTransient<MainPage>();
-		builder.Services.AddSingleton<DatabaseService>();
+		builder.Services.AddSingleton<HomeDbContext>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

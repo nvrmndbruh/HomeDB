@@ -1,10 +1,13 @@
-﻿namespace HomeDB
+﻿using HomeDB.Models;
+
+namespace HomeDB
 {
     public partial class App : Application
     {
         public App(MainPage mainPage)
         {
             InitializeComponent();
+            DatabaseInitializer.Initialize();
             MainPage = mainPage;
         }
 

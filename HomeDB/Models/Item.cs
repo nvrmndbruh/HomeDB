@@ -1,11 +1,11 @@
-﻿using SQLite;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace HomeDB.Model
+namespace HomeDB.Models
 {
     [Table("item")]
     public class Item
     {
-        [PrimaryKey, AutoIncrement]
         [Column("id")]
         public int Id { get; set; }
 
@@ -22,6 +22,8 @@ namespace HomeDB.Model
         public string Photo { get; set; }
 
         [Column("price")]
-        public double Price { get; set; }
+        public decimal Price { get; set; }
+
+        public List<ItemCategory> ItemCategories { get; set; } = new List<ItemCategory>();
     }
 }
