@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeDB.MainPage"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             xmlns:vm="clr-namespace:HomeDB.ViewModels">
+
+    <ContentPage.BindingContext>
+        <vm:MainViewModel/>
+    </ContentPage.BindingContext>
+
+    <ScrollView>
+        <material:TreeView
+            ItemsSource="{Binding Nodes}"
+            IsLeafPropertyName="IsLeaf"
+            LoadChildrenCommand="{Binding LoadChildrenCommand}"
+            Spacing="16"
+            Padding="20">
+            <material:TreeView.ItemTemplate>
+                <DataTemplate>
+                    <HorizontalStackLayout VerticalOptions="Center">
+                        <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
+                    </HorizontalStackLayout>
+                </DataTemplate>
+            </material:TreeView.ItemTemplate>
+        </material:TreeView>
+    </ScrollView>
+</ContentPage>

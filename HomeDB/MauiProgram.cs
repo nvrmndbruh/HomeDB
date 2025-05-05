@@ -1,31 +1,34 @@
-﻿using HomeDB.Models;
+﻿using HomeDB.Data;
+using HomeDB.ViewModels;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
 
-namespace HomeDB;
-
-public static class MauiProgram
+namespace HomeDB
 {
-	public static MauiApp CreateMauiApp()
-	{
-		var builder = MauiApp.CreateBuilder();
-		builder
-			.UseMauiApp<App>()
-			.UseUraniumUI()
-			.UseUraniumUIMaterial()
-			.ConfigureFonts(fonts =>
-			{
-				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-			});
+    public static class MauiProgram
+    {
+        public static MauiApp CreateMauiApp()
+        {
+            var builder = MauiApp.CreateBuilder();
+            builder
+                .UseMauiApp<App>()
+                .UseUraniumUI()
+                .UseUraniumUIMaterial()
+                .ConfigureFonts(fonts =>
+                {
+                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                });
 
-		builder.Services.AddTransient<MainPage>();
-		builder.Services.AddSingleton<HomeDbContext>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<MainViewModel>();
+            builder.Services.AddSingleton<DatabaseContext>();
 
 #if DEBUG
-		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
-	}
+            return builder.Build();
+        }
+    }
 }

@@ -1,4 +1,5 @@
-﻿using UraniumUI;
+﻿using System.Collections.ObjectModel;
+using UraniumUI;
 
 namespace HomeDB.Models
 {
@@ -11,6 +12,6 @@ namespace HomeDB.Models
         public string Name { get; set; } // Название узла
         public string Icon { get; set; } // Путь к иконке (опционально)
         public bool IsLeaf { get => isLeaf; set => SetProperty(ref isLeaf, value); }
-        public List<TreeNode> Children { get; set; } = new List<TreeNode>(); // Дочерние узлы
+        public ObservableCollection<TreeNode> Children { get; } = new(); // Дочерние узлы
     }
 }
