@@ -1,7 +1,8 @@
-﻿using System.Collections.ObjectModel;
+﻿using HomeDB.Models;
+using System.Collections.ObjectModel;
 using UraniumUI;
 
-namespace HomeDB.Models
+namespace HomeDB.Data
 {
     public class TreeNode : UraniumBindableObject
     {
