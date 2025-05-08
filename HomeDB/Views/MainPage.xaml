@@ -3,27 +3,53 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="HomeDB.MainPage"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             xmlns:vm="clr-namespace:HomeDB.ViewModels">
+             xmlns:vm="clr-namespace:HomeDB.ViewModels"
+             Title="Главная"
+             >
 
     <ContentPage.BindingContext>
         <vm:MainViewModel/>
     </ContentPage.BindingContext>
 
-    <ScrollView>
-        <material:TreeView
-            ItemsSource="{Binding Nodes}"
-            IsLeafPropertyName="IsLeaf"
-            LoadChildrenCommand="{Binding LoadChildrenCommand}"
-            Spacing="16"
-            Padding="20">
-            <material:TreeView.ItemTemplate>
-                <DataTemplate>
-                    <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
-                        <Image Source="{Binding Icon}" HeightRequest="30" WidthRequest="30"/>
-                        <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
-                    </HorizontalStackLayout>
-                </DataTemplate>
-            </material:TreeView.ItemTemplate>
-        </material:TreeView>
-    </ScrollView>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <ScrollView>
+            <material:TreeView
+                ItemsSource="{Binding Nodes}"
+                IsLeafPropertyName="IsLeaf"
+                LoadChildrenCommand="{Binding LoadChildrenCommand}"
+                Spacing="16"
+                Padding="20"
+                SelectionMode="None"
+                SelectionBrush="CadetBlue"
+                Grid.Row="0">
+                <material:TreeView.ItemTemplate>
+                    <DataTemplate>
+                        <SwipeView Threshold="100">
+                            <SwipeView.RightItems>
+                                <SwipeItems Mode="Execute">
+                                    <SwipeItem BackgroundColor="Transparent"
+                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=EditCommand}"
+                                               CommandParameter="{Binding .}"/>
+                                </SwipeItems>
+                            </SwipeView.RightItems>
+                            <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
+                                <Image Source="{Binding Icon}" HeightRequest="30" WidthRequest="30"/>
+                                <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
+                            </HorizontalStackLayout>
+                        </SwipeView>
+
+                    </DataTemplate>
+                </material:TreeView.ItemTemplate>
+            </material:TreeView>
+        </ScrollView>
+        <Button Text="refresh"
+                Grid.Row="1"
+                Margin="8"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=RefreshCommand}"/>
+    </Grid>
 </ContentPage>

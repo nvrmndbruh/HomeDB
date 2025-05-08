@@ -84,4 +84,16 @@
 		<PackageReference Include="UraniumUI.Material" Version="2.11.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="Views\EditItemPage.xaml.cs">
+	    <DependentUpon>EditItemPage.xaml</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <MauiXaml Update="Views\EditItemPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	</ItemGroup>
+
 </Project>

@@ -1,10 +1,11 @@
-﻿using HomeDB.Models;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using HomeDB.Models;
 using System.Collections.ObjectModel;
 using UraniumUI;
 
 namespace HomeDB.Data
 {
-    public class TreeNode : UraniumBindableObject
+    public partial class TreeNode : ObservableObject
     {
         private bool isLeaf;
 
@@ -14,5 +15,6 @@ namespace HomeDB.Data
         public string Icon { get; set; } // Путь к иконке (опционально)
         public bool IsLeaf { get => isLeaf; set => SetProperty(ref isLeaf, value); }
         public ObservableCollection<TreeNode> Children { get; } = new(); // Дочерние узлы
+        public TreeNode? Parent { get; set; }
     }
 }

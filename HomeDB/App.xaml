@@ -3,10 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:HomeDB"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
-             
+             xmlns:converters="clr-namespace:HomeDB.Converters"
              x:Class="HomeDB.App">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
+            <converters:NullToStringConverter x:Key="NullToStringConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
