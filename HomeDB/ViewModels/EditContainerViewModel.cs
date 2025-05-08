@@ -1,19 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HomeDB.Data;
 using HomeDB.Models;
+using HomeDB.Data;
+using System.Collections.ObjectModel;
 
 namespace HomeDB.ViewModels
 {
+    [QueryProperty("SelectedContainer", "SelectedContainer")]
     [QueryProperty("Node", "Node")]
-    [QueryProperty(nameof(HomeDB.Models.Item), nameof(HomeDB.Models.Item))]
-    public partial class EditItemViewModel : ObservableObject
+    [QueryProperty("Nodes", "Nodes")]
+    public partial class EditContainerViewModel : ObservableObject
     {
+        [ObservableProperty]
+        public Container selectedContainer;
+
         [ObservableProperty]
         public TreeNode node;
 
         [ObservableProperty]
-        public Item item;
+        public ObservableCollection<TreeNode> nodes;
 
         DatabaseContext _context = new();
 
@@ -25,20 +30,25 @@ namespace HomeDB.ViewModels
                 parent.Children.Remove(Node);
                 parent.Children.Add(node);
             }
+            else
+            {
+                Nodes.Remove(Node);
+                Nodes.Add(node);
+            }
         }
 
         [RelayCommand]
         async Task Save()
         {
-            await _context.UpdateItem(Item);
+            await _context.UpdateContainer(SelectedContainer);
             var newNode = new TreeNode
             {
                 Id = Node.Id,
                 Type = Node.Type,
-                Name = Item.Name,
-                Icon = Item.Icon,
+                Name = SelectedContainer.Name,
+                Icon = SelectedContainer.Icon,
                 IsLeaf = Node.IsLeaf,
-                Parent = Node.Parent
+                Parent = Node.Parent, 
             };
             Refresh(newNode);
             await Shell.Current.GoToAsync("..");

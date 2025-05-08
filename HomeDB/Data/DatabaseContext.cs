@@ -33,10 +33,24 @@ namespace HomeDB.Data
             return item;
         }
 
+        public async Task<Container> GetContainer(int id)
+        {
+            await Init();
+
+            var container = await _database.Table<Container>().FirstOrDefaultAsync(c => c.Id == id);
+            return container;
+        }
+
         public async Task UpdateItem(Item item)
         {
             await Init();
             await _database.UpdateAsync(item);
+        }
+
+        public async Task UpdateContainer(Container container)
+        {
+            await Init();
+            await _database.UpdateAsync(container);
         }
 
         public async Task<IEnumerable<Item>> GetItems()

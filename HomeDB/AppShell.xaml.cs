@@ -7,6 +7,7 @@
             InitializeComponent();
 
             Routing.RegisterRoute(nameof(EditItemPage), typeof(EditItemPage));
+            Routing.RegisterRoute(nameof(EditContainerPage), typeof(EditContainerPage));
         }
     }
 }

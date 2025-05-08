@@ -4,8 +4,7 @@
              x:Class="HomeDB.MainPage"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:vm="clr-namespace:HomeDB.ViewModels"
-             Title="Главная"
-             >
+             Title="Главная">
 
     <ContentPage.BindingContext>
         <vm:MainViewModel/>

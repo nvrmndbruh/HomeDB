@@ -120,6 +120,16 @@ namespace HomeDB.ViewModels
                     ["Node"] = node
                 });
             }
+            else
+            {
+                var container = await _context.GetContainer(node.Id);
+                await Shell.Current.GoToAsync($"{nameof(EditContainerPage)}", new Dictionary<string, object>
+                {
+                    ["SelectedContainer"] = container,
+                    ["Node"] = node,
+                    ["Nodes"] = Nodes
+                });
+            }
         }
     }
 }

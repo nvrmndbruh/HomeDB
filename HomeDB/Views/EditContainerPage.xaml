@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:HomeDB.ViewModels"
+             x:Class="HomeDB.EditContainerPage"
+             Title="EditContainerPage"
+             xmlns:converter="clr-namespace:HomeDB.Converters">
+
+    <ContentPage.BindingContext>
+        <vm:EditContainerViewModel/>
+    </ContentPage.BindingContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+        <StackLayout Padding="30" VerticalOptions="Start">
+            <Label Text="Название:" FontSize="20"/>
+            <Entry Text="{Binding SelectedContainer.Name, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" FontSize="20" FontAttributes="Bold"/>
+            <Label Text="Иконка:" />
+            <Entry Text="{Binding SelectedContainer.Icon, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
+        </StackLayout>
+        <Button Margin="8"
+            Grid.Row="1"
+            Text="SAVE"
+            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
+    </Grid>
+</ContentPage>
