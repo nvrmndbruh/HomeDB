@@ -21,10 +21,7 @@
                 ItemsSource="{Binding Nodes}"
                 IsLeafPropertyName="IsLeaf"
                 LoadChildrenCommand="{Binding LoadChildrenCommand}"
-                Spacing="16"
-                Padding="20"
-                SelectionMode="None"
-                SelectionBrush="CadetBlue"
+                Padding="10"
                 Grid.Row="0">
                 <material:TreeView.ItemTemplate>
                     <DataTemplate>
@@ -36,19 +33,15 @@
                                                CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
-                            <HorizontalStackLayout VerticalOptions="Center" Spacing="8">
-                                <Image Source="{Binding Icon}" HeightRequest="30" WidthRequest="30"/>
+
+                            <HorizontalStackLayout VerticalOptions="Center" Spacing="10">
+                                <Image Source="{Binding Icon}" WidthRequest="30"/>
                                 <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
                             </HorizontalStackLayout>
                         </SwipeView>
-
                     </DataTemplate>
                 </material:TreeView.ItemTemplate>
             </material:TreeView>
         </ScrollView>
-        <Button Text="refresh"
-                Grid.Row="1"
-                Margin="8"
-                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=RefreshCommand}"/>
     </Grid>
 </ContentPage>

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:HomeDB.ViewModels"
              x:Class="HomeDB.EditContainerPage"
-             Title="EditContainerPage"
+             Title="Редактирование контейнера"
              xmlns:converter="clr-namespace:HomeDB.Converters">
 
     <ContentPage.BindingContext>
@@ -12,17 +12,68 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="3*"/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
-        <StackLayout Padding="30" VerticalOptions="Start">
-            <Label Text="Название:" FontSize="20"/>
-            <Entry Text="{Binding SelectedContainer.Name, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" FontSize="20" FontAttributes="Bold"/>
-            <Label Text="Иконка:" />
-            <Entry Text="{Binding SelectedContainer.Icon, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
+        
+        <StackLayout Padding="30" VerticalOptions="Start" Spacing="20">
+            
+            <StackLayout>
+                <Label Text="Название"/>
+                <Entry Text="{Binding SelectedContainer.Name, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" FontSize="20" FontAttributes="Bold"/>
+            </StackLayout>
+
+            <StackLayout>
+                <Label Text="Иконка"/>
+                <HorizontalStackLayout Spacing="20">
+                    <Image HeightRequest="30" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
+                    <Picker x:Name="IconPicker" SelectedItem="{Binding SelectedContainer.Icon}">
+                        <Picker.Items>
+                            <x:String>ct_abstract.png</x:String>
+                            <x:String>house.png</x:String>
+                            <x:String>box.png</x:String>
+                        </Picker.Items>
+                    </Picker>
+                </HorizontalStackLayout>
+            </StackLayout>
+
         </StackLayout>
+
+        <Border Grid.Row="1" Margin="30" Padding="16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <CollectionView ItemsSource="{Binding Node.Children, Mode=TwoWay}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="25"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+
+                            <Image Source="{Binding Icon}" WidthRequest="25" Grid.Column="0"/>
+                            <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="20" Grid.Column="1" Padding="10"/>
+
+                            <HorizontalStackLayout Grid.Column="2" Spacing="0" HorizontalOptions="End">
+                                <Button Text="/" Scale="0.7" FontSize="20" FontAttributes="Bold"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=EditChildCommand}"
+                                        CommandParameter="{Binding .}"/>
+                                <Button Text="-" Scale="0.7" FontSize="20" FontAttributes="Bold"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteChildCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </HorizontalStackLayout>
+
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+
         <Button Margin="8"
-            Grid.Row="1"
+            Grid.Row="2"
             Text="SAVE"
             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
     </Grid>

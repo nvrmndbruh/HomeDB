@@ -4,7 +4,8 @@
              x:Class="HomeDB.EditItemPage"
              xmlns:vm="clr-namespace:HomeDB.ViewModels"
              xmlns:converter="clr-namespace:HomeDB.Converters"
-             Title="Редактирование">
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+             Title="Редактирование вещи">
 
     <ContentPage.BindingContext>
         <vm:EditItemViewModel/>
@@ -13,22 +14,57 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
+            <RowDefinition/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
-        <StackLayout Padding="30" VerticalOptions="Start">
-            <Label Text="Название:" FontSize="20"/>
-            <Entry Text="{Binding Item.Name, Mode=TwoWay}" FontSize="20" FontAttributes="Bold"/>
-            <Label Text="Описание:" />
-            <Entry Text="{Binding Item.Description, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
-            <Label Text="Фото:" />
-            <Entry Text="{Binding Item.Photo, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
-            <Label Text="Иконка:" />
-            <Entry Text="{Binding Item.Icon, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
-            <Label Text="Цена:" />
-            <Entry Text="{Binding Item.Price, Mode=TwoWay, Converter={StaticResource DecimalToStringConverter}}"/>
-        </StackLayout>
+        
+        <Border Grid.Row="0" Margin="30, 0, 30, 20">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=SelectPhotoCommand}"/>
+            </Border.GestureRecognizers>
+            <Image Source="{Binding Item.Photo, Mode=TwoWay}"/>
+        </Border>
+        
+        <ScrollView Grid.Row="1">
+            <StackLayout Padding="30, 0, 30, 0" VerticalOptions="Start" Grid.Row="1" Spacing="20">
+                <StackLayout>
+                    <Label Text="Название"/>
+                    <Entry Text="{Binding Item.Name, Mode=TwoWay}" FontSize="20" FontAttributes="Bold"/>
+                </StackLayout>
+
+                <StackLayout>
+                    <Label Text="Описание" />
+                    <Editor Text="{Binding Item.Description, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"
+                            AutoSize="TextChanges"/>
+                </StackLayout>
+
+                <StackLayout>
+                    <Label Text="Иконка"/>
+                    <HorizontalStackLayout Spacing="20">
+                        <Image HeightRequest="30" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
+                        <Picker x:Name="IconPicker" SelectedItem="{Binding Item.Icon}">
+                            <Picker.Items>
+                                <x:String>it_abstract.png</x:String>
+                                <x:String>tshirt.png</x:String>
+                                <x:String>plug.png</x:String>
+                            </Picker.Items>
+                        </Picker>
+                    </HorizontalStackLayout>
+                </StackLayout>
+
+                <StackLayout>
+                    <Label Text="Цена" />
+                    <Entry Text="{Binding Item.Price, Mode=TwoWay, Converter={StaticResource DecimalToStringConverter}}"/>
+                </StackLayout>
+                
+            </StackLayout>
+        </ScrollView>
+        
         <Button Margin="8"
-                Grid.Row="1"
+                Grid.Row="2"
                 Text="SAVE"
                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=SaveCommand}"/>
     </Grid>

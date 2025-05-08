@@ -104,13 +104,15 @@ namespace HomeDB.ViewModels
                     }
                 }
             }
-
         }
 
 
         [RelayCommand]
         async Task Edit(TreeNode node)
         {
+            if (node.Children.Count == 0)
+                await LoadChildrenAsync(node);
+
             if (node.Type == ChildType.Item)
             {
                 var item = await _context.GetItem(node.Id);

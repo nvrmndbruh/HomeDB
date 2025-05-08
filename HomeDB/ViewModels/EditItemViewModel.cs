@@ -28,6 +28,19 @@ namespace HomeDB.ViewModels
         }
 
         [RelayCommand]
+        async Task SelectPhoto()
+        {
+            var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+            {
+                Title = "Выберите фото"
+            });
+            if (result != null)
+            {
+                Item.Photo = result.FullPath;
+            }
+        }
+
+        [RelayCommand]
         async Task Save()
         {
             await _context.UpdateItem(Item);
