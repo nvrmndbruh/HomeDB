@@ -30,7 +30,7 @@ namespace HomeDB.ViewModels
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
-                if (hierarchy.ChildType == ChildType.Container)
+                if (hierarchy.ChildType == nameof(Container))
                 {
                     var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
                     if (container != null)
@@ -41,13 +41,13 @@ namespace HomeDB.ViewModels
                             Id = container.Id,
                             Name = container.Name,
                             Icon = container.Icon,
-                            Type = ChildType.Container,
+                            Type = nameof(Container),
                             IsLeaf = !hasChildren,
                             Parent = parent
                         });
                     }
                 }
-                else if (hierarchy.ChildType == ChildType.Item)
+                else if (hierarchy.ChildType == nameof(Item))
                 {
                     var item = items.FirstOrDefault(i => i.Id == hierarchy.ChildId);
                     if (item != null)
@@ -57,12 +57,16 @@ namespace HomeDB.ViewModels
                             Id = item.Id,
                             Name = item.Name,
                             Icon = item.Icon,
-                            Type = ChildType.Item,
+                            Type = nameof(Item),
                             IsLeaf = true,
                             Parent = parent
                         });
                     }
                 }
+            }
+            if (parent.Children.Count == 0)
+            {
+                parent.IsLeaf = true;
             }
         }
 
@@ -98,13 +102,18 @@ namespace HomeDB.ViewModels
             await Shell.Current.GoToAsync("..");
         }
 
+        async Task Delete()
+        {
+
+        }
+
         [RelayCommand]
         async Task EditChild(TreeNode node)
         {
             if (node.Children.Count == 0)
                 await LoadChildrenAsync(node);
 
-            if (node.Type == ChildType.Item)
+            if (node.Type == nameof(Item))
             {
                 var item = await _context.GetItem(node.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>

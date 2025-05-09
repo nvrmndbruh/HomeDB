@@ -17,22 +17,21 @@ namespace HomeDB.ViewModels
 
         public MainViewModel()
         {
-            _context = new DatabaseContext();
             Init();
             LoadChildrenCommand = new AsyncRelayCommand<TreeNode>(async (node) => { await LoadChildrenAsync(node); });
         }
 
         public async Task Init()
         {
-            if (!File.Exists(DatabaseContext.DbPath))
-            {
+            //if (!File.Exists(DatabaseContext.DbPath))
+            //{
                 using var stream = FileSystem.OpenAppPackageFileAsync("HomeDB.db").GetAwaiter().GetResult();
                 using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
                     File.WriteAllBytes(DatabaseContext.DbPath, memoryStream.ToArray());
                 }
-            }
+            //}
 
             await LoadRoot();
         }
@@ -41,20 +40,22 @@ namespace HomeDB.ViewModels
         {
             var containers = await _context.GetContainers();
             var hierarchies = await _context.GetHierarchies();
+            var items = await _context.GetItems();
 
             var root = containers
-                .Where(c => !hierarchies.Any(h => h.ChildId == c.Id && h.ChildType == ChildType.Container))
+                .Where(c => !hierarchies.Any(h => h.ChildId == c.Id && h.ChildType == nameof(Container)))
                 .ToList();
 
             foreach (var container in root)
             {
+                var hasChildren = hierarchies.Any(h => h.ParentId == container.Id);
                 var node = new TreeNode
                 {
                     Id = container.Id,
-                    Type = ChildType.Container,
+                    Type = nameof(Container),
                     Name = container.Name,
                     Icon = container.Icon,
-                    IsLeaf = false,
+                    IsLeaf = !hasChildren,
                     Parent = null
                 };
 
@@ -70,7 +71,7 @@ namespace HomeDB.ViewModels
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
-                if (hierarchy.ChildType == ChildType.Container)
+                if (hierarchy.ChildType == nameof(Container))
                 {
                     var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
                     if (container != null)
@@ -81,13 +82,13 @@ namespace HomeDB.ViewModels
                             Id = container.Id,
                             Name = container.Name,
                             Icon = container.Icon,
-                            Type = ChildType.Container,
+                            Type = nameof(Container),
                             IsLeaf = !hasChildren,
                             Parent = parent
                         });
                     }
                 }
-                else if (hierarchy.ChildType == ChildType.Item)
+                else if (hierarchy.ChildType == nameof(Item))
                 {
                     var item = items.FirstOrDefault(i => i.Id == hierarchy.ChildId);
                     if (item != null)
@@ -97,12 +98,16 @@ namespace HomeDB.ViewModels
                             Id = item.Id,
                             Name = item.Name,
                             Icon = item.Icon,
-                            Type = ChildType.Item,
+                            Type = nameof(Item),
                             IsLeaf = true,
                             Parent = parent
                         });
                     }
                 }
+            }
+            if (parent.Children.Count == 0)
+            {
+                parent.IsLeaf = true;
             }
         }
 
@@ -113,7 +118,7 @@ namespace HomeDB.ViewModels
             if (node.Children.Count == 0)
                 await LoadChildrenAsync(node);
 
-            if (node.Type == ChildType.Item)
+            if (node.Type == nameof(Item))
             {
                 var item = await _context.GetItem(node.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>

@@ -20,13 +20,16 @@ namespace HomeDB
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<DatabaseContext>();
+
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
 
             builder.Services.AddTransient<EditItemPage>();
             builder.Services.AddTransient<EditItemViewModel>();
-            
-            builder.Services.AddSingleton<DatabaseContext>();
+
+            builder.Services.AddTransient<EditContainerPage>();
+            builder.Services.AddTransient<EditContainerViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

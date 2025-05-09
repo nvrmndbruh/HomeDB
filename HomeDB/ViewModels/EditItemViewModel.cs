@@ -17,13 +17,20 @@ namespace HomeDB.ViewModels
 
         DatabaseContext _context = new();
 
-        public void Refresh(TreeNode node)
+        public void RefreshNode(TreeNode node)
         {
-            if (Node.Parent != null)
+            var parent = Node.Parent;
+            parent?.Children.Remove(Node);
+            parent?.Children.Add(node);
+        }
+
+        public void DeleteNode(TreeNode node)
+        {
+            var parent = Node.Parent;
+            parent?.Children.Remove(Node);
+            if (parent?.Children.Count == 0)
             {
-                var parent = Node.Parent;
-                parent.Children.Remove(Node);
-                parent.Children.Add(node);
+                parent.IsLeaf = true;
             }
         }
 
@@ -53,8 +60,25 @@ namespace HomeDB.ViewModels
                 IsLeaf = Node.IsLeaf,
                 Parent = Node.Parent
             };
-            Refresh(newNode);
+            RefreshNode(newNode);
             await Shell.Current.GoToAsync("..");
+        }
+
+        [RelayCommand]
+        async Task Delete()
+        {
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            "Подтверждение удаления",
+            "Вы уверены, что хотите удалить эту вещь? Это действие нельзя отменить.",
+            "Да",
+            "Нет");
+
+            if (confirm)
+            {
+                await _context.DeleteItem(Item);
+                DeleteNode(Node);
+                await Shell.Current.GoToAsync("..");
+            }
         }
     }
 }

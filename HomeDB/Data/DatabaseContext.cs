@@ -25,12 +25,46 @@ namespace HomeDB.Data
             await _database.CreateTableAsync<ItemCategory>();
         }
 
+        #region Item methods
+        public async Task<IEnumerable<Item>> GetItems()
+        {
+            await Init();
+
+            var items = await _database.Table<Item>().ToListAsync();
+            return items;
+        }
+
         public async Task<Item> GetItem(int id)
         {
             await Init();
 
             var item = await _database.Table<Item>().FirstOrDefaultAsync(i => i.Id == id);
             return item;
+        }
+
+        public async Task UpdateItem(Item item)
+        {
+            await Init();
+            await _database.UpdateAsync(item);
+        }
+
+        public async Task DeleteItem(Item item)
+        {
+            await Init();
+
+            // удаляем связанные записи из таблицы Hierarchy
+            await _database.Table<Hierarchy>().DeleteAsync(h => h.ChildId == item.Id && h.ChildType == nameof(Item));
+            await _database.DeleteAsync(item);
+        }
+        #endregion
+
+        #region Container methods
+        public async Task<IEnumerable<Container>> GetContainers()
+        {
+            await Init();
+
+            var containers = await _database.Table<Container>().ToListAsync();
+            return containers;
         }
 
         public async Task<Container> GetContainer(int id)
@@ -41,41 +75,12 @@ namespace HomeDB.Data
             return container;
         }
 
-        public async Task UpdateItem(Item item)
-        {
-            await Init();
-            await _database.UpdateAsync(item);
-        }
-
         public async Task UpdateContainer(Container container)
         {
             await Init();
             await _database.UpdateAsync(container);
         }
-
-        public async Task<IEnumerable<Item>> GetItems()
-        {
-            await Init();
-
-            var items = await _database.Table<Item>().ToListAsync();
-            return items;
-        }
-
-        public async Task<Container> GetContainers(int id)
-        {
-            await Init();
-
-            var container = await _database.Table<Container>().FirstOrDefaultAsync(c => c.Id == id);
-            return container;
-        }
-
-        public async Task<IEnumerable<Container>> GetContainers()
-        {
-            await Init();
-
-            var containers = await _database.Table<Container>().ToListAsync();
-            return containers;
-        }
+        #endregion
 
         public async Task<IEnumerable<Hierarchy>> GetHierarchies()
         {

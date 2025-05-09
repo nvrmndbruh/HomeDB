@@ -2,14 +2,14 @@
 
 namespace HomeDB.Models
 {
-    public enum ChildType { Container, Item }
-
     public class Hierarchy
     {
         [AutoIncrement, PrimaryKey]
         public int Id { get; set; }
+        [Indexed]
         public int ParentId { get; set; }
+        [Indexed]
         public int ChildId { get; set; }
-        public ChildType ChildType { get; set; }
+        public string ChildType { get; set; }
     }
 }
