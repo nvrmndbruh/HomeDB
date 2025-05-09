@@ -39,8 +39,8 @@ namespace HomeDB.ViewModels
         private async Task LoadRoot()
         {
             var containers = await _context.GetContainers();
-            var hierarchies = await _context.GetHierarchies();
             var items = await _context.GetItems();
+            var hierarchies = await _context.GetHierarchies();
 
             var root = containers
                 .Where(c => !hierarchies.Any(h => h.ChildId == c.Id && h.ChildType == nameof(Container)))
@@ -58,7 +58,24 @@ namespace HomeDB.ViewModels
                     IsLeaf = !hasChildren,
                     Parent = null
                 };
+                Nodes.Add(node);
+            }
 
+            var standalone = items
+                .Where(i => !hierarchies.Any(h => h.ChildId == i.Id && h.ChildType == nameof(Item)))
+                .ToList();
+
+            foreach (var item in standalone)
+            {
+                var node = new TreeNode
+                {
+                    Id = item.Id,
+                    Type = nameof(Item),
+                    Name = item.Name,
+                    Icon = item.Icon,
+                    IsLeaf = true,
+                    Parent = null
+                };
                 Nodes.Add(node);
             }
         }

@@ -72,9 +72,25 @@
             </CollectionView>
         </Border>
 
-        <Button Margin="8"
-            Grid.Row="2"
-            Text="SAVE"
-            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Button Margin="8"
+                    Grid.Column="0"
+                    Text="SAVE"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
+
+            <Button Margin="8"
+                    Grid.Column="1"
+                    Text="DELETE"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteCommand}"/>
+
+        </Grid>
+
     </Grid>
 </ContentPage>

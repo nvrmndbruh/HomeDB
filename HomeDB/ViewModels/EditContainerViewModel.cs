@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using HomeDB.Models;
 using HomeDB.Data;
+using HomeDB.Models;
 using System.Collections.ObjectModel;
 
 namespace HomeDB.ViewModels
@@ -22,7 +22,7 @@ namespace HomeDB.ViewModels
 
         DatabaseContext _context = new();
 
-        private async Task LoadChildrenAsync(TreeNode parent)
+        async Task LoadChildrenAsync(TreeNode parent)
         {
             var containers = await _context.GetContainers();
             var hierarchies = await _context.GetHierarchies();
@@ -85,6 +85,27 @@ namespace HomeDB.ViewModels
             }
         }
 
+        async Task<TreeNode> RefreshChildren(TreeNode parent, TreeNode node, bool childMode = false)
+        {
+            if (childMode)
+            {
+                parent.Children.Clear();
+                await LoadChildrenAsync(parent);
+                return parent;
+            }
+
+            parent.Children.Remove(node);
+            foreach (var children in node.Children)
+            {
+                children.Parent = parent;
+                parent.Children.Add(children);
+            }
+            if (parent.Children.Count == 0)
+                parent.IsLeaf = true;
+
+            return parent;
+        }
+
         [RelayCommand]
         async Task Save()
         {
@@ -96,15 +117,10 @@ namespace HomeDB.ViewModels
                 Name = SelectedContainer.Name,
                 Icon = SelectedContainer.Icon,
                 IsLeaf = Node.IsLeaf,
-                Parent = Node.Parent, 
+                Parent = Node.Parent
             };
             Refresh(newNode);
             await Shell.Current.GoToAsync("..");
-        }
-
-        async Task Delete()
-        {
-
         }
 
         [RelayCommand]
@@ -131,6 +147,71 @@ namespace HomeDB.ViewModels
                     ["Node"] = node,
                     ["Nodes"] = Nodes
                 });
+            }
+        }
+
+        [RelayCommand]
+        async Task DeleteChild(TreeNode node)
+        {
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+                    "Подтверждение удаления",
+                    "Вы уверены, что хотите удалить эту вещь? Это действие нельзя отменить.",
+                    "Да",
+                    "Нет");
+
+            if (confirm)
+            {
+                if (node.Type == (nameof(Item)))
+                {
+                    var item = await _context.GetItem(node.Id);
+                    await _context.DeleteItem(item);
+                    Node = await RefreshChildren(Node, node, true);
+                }
+                else
+                {
+                    var container = await _context.GetContainer(node.Id);
+                    var parent = await _context.GetParentHierarchies(container);
+                    var child = await _context.GetChildrenHierarchy(container);
+                    await _context.UpdateHierarchy(child.ParentId, parent);
+                    await _context.DeleteContainer(container);
+                    Node = await RefreshChildren(Node, node, true);
+                }
+            }
+        }
+
+        [RelayCommand]
+        async Task Delete()
+        {
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            "Подтверждение удаления",
+            "Вы уверены, что хотите удалить этот контейнер? Это действие нельзя отменить.",
+            "Да",
+            "Нет");
+
+            if (confirm)
+            {
+                if (Node.Parent != null)
+                {
+                    var parent = await _context.GetParentHierarchies(SelectedContainer);
+                    var child = await _context.GetChildrenHierarchy(SelectedContainer);
+                    await _context.UpdateHierarchy(child.ParentId, parent);
+                    await _context.DeleteContainer(SelectedContainer);
+                    Node = await RefreshChildren(Node.Parent, Node);
+                    await Shell.Current.GoToAsync("..");
+                }
+                else
+                {
+                    var parent = await _context.GetParentHierarchies(SelectedContainer);
+                    await _context.DeleteHierarchies(parent);
+                    await _context.DeleteContainer(SelectedContainer);
+                    foreach (var children in Node.Children)
+                    {
+                        children.Parent = Node.Parent;
+                        Nodes.Add(children);
+                    }
+                    Nodes.Remove(Node);
+                    await Shell.Current.GoToAsync("..");
+                }
             }
         }
     }
