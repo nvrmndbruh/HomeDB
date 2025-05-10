@@ -1,7 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using HomeDB.Models;
 using System.Collections.ObjectModel;
-using UraniumUI;
 
 namespace HomeDB.Data
 {

@@ -23,15 +23,15 @@ namespace HomeDB.ViewModels
 
         public async Task Init()
         {
-            //if (!File.Exists(DatabaseContext.DbPath))
-            //{
+            if (!File.Exists(DatabaseContext.DbPath))
+            {
                 using var stream = FileSystem.OpenAppPackageFileAsync("HomeDB.db").GetAwaiter().GetResult();
                 using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
                     File.WriteAllBytes(DatabaseContext.DbPath, memoryStream.ToArray());
                 }
-            //}
+            }
 
             await LoadRoot();
         }

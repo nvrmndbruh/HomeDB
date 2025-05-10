@@ -7,7 +7,6 @@
              x:Class="HomeDB.App">
     <Application.Resources>
         <ResourceDictionary>
-            <converters:DecimalToStringConverter x:Key="DecimalToStringConverter"/>
             <converters:NullToStringConverter x:Key="NullToStringConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />

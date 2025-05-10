@@ -106,21 +106,41 @@ namespace HomeDB.ViewModels
             return parent;
         }
 
+        private List<string> ValidateModel()
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(SelectedContainer.Name))
+            {
+                errors.Add("Название обязательно");
+            }
+
+            return errors;
+        }
+
         [RelayCommand]
         async Task Save()
         {
-            await _context.UpdateContainer(SelectedContainer);
-            var newNode = new TreeNode
+            var errors = ValidateModel();
+            if (errors.Count > 0)
             {
-                Id = Node.Id,
-                Type = Node.Type,
-                Name = SelectedContainer.Name,
-                Icon = SelectedContainer.Icon,
-                IsLeaf = Node.IsLeaf,
-                Parent = Node.Parent
-            };
-            Refresh(newNode);
-            await Shell.Current.GoToAsync("..");
+                await Application.Current.MainPage.DisplayAlert("Ошибка", string.Join("\n", errors), "ОК");
+            }
+            else
+            {
+                await _context.UpdateContainer(SelectedContainer);
+                var newNode = new TreeNode
+                {
+                    Id = Node.Id,
+                    Type = Node.Type,
+                    Name = SelectedContainer.Name,
+                    Icon = SelectedContainer.Icon,
+                    IsLeaf = Node.IsLeaf,
+                    Parent = Node.Parent
+                };
+                Refresh(newNode);
+                await Shell.Current.GoToAsync("..");
+            }
         }
 
         [RelayCommand]

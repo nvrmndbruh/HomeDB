@@ -57,7 +57,7 @@
 
                 <StackLayout>
                     <Label Text="Цена" />
-                    <Entry Text="{Binding Item.Price, Mode=TwoWay, Converter={StaticResource DecimalToStringConverter}}"/>
+                    <Entry Text="{Binding PriceInput, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
                 </StackLayout>
                 
             </StackLayout>

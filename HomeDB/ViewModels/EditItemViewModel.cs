@@ -17,6 +17,20 @@ namespace HomeDB.ViewModels
 
         DatabaseContext _context = new();
 
+        [ObservableProperty]
+        public string? priceInput;
+
+        public EditItemViewModel()
+        {
+            this.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(Item) && Item != null)
+                {
+                    PriceInput = Item.Price?.ToString();
+                }
+            };
+        }
+
         public void RefreshNode(TreeNode node)
         {
             var parent = Node.Parent;
@@ -34,6 +48,31 @@ namespace HomeDB.ViewModels
             }
         }
 
+        private List<string> ValidateModel()
+        {
+            var errors = new List<string>();
+
+            if (string.IsNullOrWhiteSpace(Item.Name))
+            {
+                errors.Add("Название обязательно");
+            }
+
+            if (string.IsNullOrWhiteSpace(Item.Icon))
+            {
+                errors.Add("Иконка обязательна");
+            }
+
+            if (!string.IsNullOrWhiteSpace(PriceInput))
+            {
+                if (!double.TryParse(PriceInput, out var price) || price <= 0)
+                {
+                    errors.Add("Цена должна быть числом больше 0");
+                }
+            }
+
+            return errors;
+        }
+
         [RelayCommand]
         async Task SelectPhoto()
         {
@@ -48,20 +87,30 @@ namespace HomeDB.ViewModels
         }
 
         [RelayCommand]
-        async Task Save()
+        async void Save()
         {
-            await _context.UpdateItem(Item);
-            var newNode = new TreeNode
+            var errors = ValidateModel();
+            if (errors.Count > 0)
             {
-                Id = Node.Id,
-                Type = Node.Type,
-                Name = Item.Name,
-                Icon = Item.Icon,
-                IsLeaf = Node.IsLeaf,
-                Parent = Node.Parent
-            };
-            RefreshNode(newNode);
-            await Shell.Current.GoToAsync("..");
+                await Application.Current.MainPage.DisplayAlert("Ошибка", string.Join("\n", errors), "ОК");
+                return;
+            }
+            else
+            {
+                Item.Price = string.IsNullOrEmpty(PriceInput) ? null : decimal.Parse(PriceInput);
+                await _context.UpdateItem(Item);
+                var newNode = new TreeNode
+                {
+                    Id = Node.Id,
+                    Type = Node.Type,
+                    Name = Item.Name,
+                    Icon = Item.Icon,
+                    IsLeaf = Node.IsLeaf,
+                    Parent = Node.Parent
+                };
+                RefreshNode(newNode);
+                await Shell.Current.GoToAsync("..");
+            }
         }
 
         [RelayCommand]
