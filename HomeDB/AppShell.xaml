@@ -8,6 +8,7 @@
     Title="HomeDB">
 
     <ShellContent
+        Title="Главная"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 

@@ -13,7 +13,8 @@ namespace HomeDB.ViewModels
 
         public ObservableCollection<TreeNode> Nodes { get; set; } = new();
 
-        //public ICommand LoadChildrenCommand { get; }
+        [ObservableProperty]
+        public TreeNode selectedNode;
 
         public MainViewModel()
         {
@@ -130,28 +131,28 @@ namespace HomeDB.ViewModels
 
 
         [RelayCommand]
-        async Task Edit(TreeNode node)
+        async Task Edit()
         {
-            if (node.Children.Count == 0)
-                await LoadChildren(node);
+            if (SelectedNode.Children.Count == 0)
+                await LoadChildren(SelectedNode);
 
-            if (node.Type == nameof(Item))
+            if (SelectedNode.Type == nameof(Item))
             {
-                var item = await _context.GetItem(node.Id);
+                var item = await _context.GetItem(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>
                 {
                     ["Item"] = item,
-                    ["Node"] = node,
+                    ["Node"] = SelectedNode,
                     ["Nodes"] = Nodes
                 });
             }
             else
             {
-                var container = await _context.GetContainer(node.Id);
+                var container = await _context.GetContainer(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditContainerPage)}", new Dictionary<string, object>
                 {
                     ["SelectedContainer"] = container,
-                    ["Node"] = node,
+                    ["Node"] = SelectedNode,
                     ["Nodes"] = Nodes
                 });
             }
