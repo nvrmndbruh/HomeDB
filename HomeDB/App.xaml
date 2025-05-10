@@ -8,6 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <converters:NullToStringConverter x:Key="NullToStringConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />

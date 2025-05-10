@@ -17,7 +17,10 @@
             <RowDefinition/>
             <RowDefinition Height="60"/>
         </Grid.RowDefinitions>
-        
+
+        <Label Grid.Row="0" Text="+" FontSize="60" IsVisible="{Binding Item.Photo, Converter={StaticResource StringToVisibilityConverter}}" TextColor="White"
+               VerticalOptions="Center" HorizontalOptions="Center"/>
+
         <Border Grid.Row="0" Margin="30, 0, 30, 20">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>
@@ -27,19 +30,12 @@
             </Border.GestureRecognizers>
             <Image Source="{Binding Item.Photo, Mode=TwoWay}"/>
         </Border>
-        
+
         <ScrollView Grid.Row="1">
             <StackLayout Padding="30, 0, 30, 0" VerticalOptions="Start" Grid.Row="1" Spacing="20">
-                <StackLayout>
-                    <Label Text="Название"/>
-                    <Entry Text="{Binding Item.Name, Mode=TwoWay}" FontSize="20" FontAttributes="Bold"/>
-                </StackLayout>
+                <Entry Text="{Binding Item.Name, Mode=TwoWay}" FontSize="20" FontAttributes="Bold" Placeholder="Название"/>
 
-                <StackLayout>
-                    <Label Text="Описание" />
-                    <Editor Text="{Binding Item.Description, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"
-                            AutoSize="TextChanges"/>
-                </StackLayout>
+                <Editor Text="{Binding Item.Description, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" Placeholder="Описание"/>
 
                 <StackLayout>
                     <Label Text="Иконка"/>
@@ -56,8 +52,8 @@
                 </StackLayout>
 
                 <StackLayout>
-                    <Label Text="Цена" />
-                    <Entry Text="{Binding PriceInput, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}"/>
+                    <Label Text="Цена"/>
+                    <Entry Text="{Binding PriceInput, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" Placeholder="0.0"/>
                 </StackLayout>
                 
             </StackLayout>

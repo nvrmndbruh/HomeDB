@@ -13,25 +13,24 @@ namespace HomeDB.ViewModels
 
         public ObservableCollection<TreeNode> Nodes { get; set; } = new();
 
-        public ICommand LoadChildrenCommand { get; }
+        //public ICommand LoadChildrenCommand { get; }
 
         public MainViewModel()
         {
             Init();
-            LoadChildrenCommand = new AsyncRelayCommand<TreeNode>(async (node) => { await LoadChildrenAsync(node); });
         }
 
         public async Task Init()
         {
-            if (!File.Exists(DatabaseContext.DbPath))
-            {
+            //if (!File.Exists(DatabaseContext.DbPath))
+            //{
                 using var stream = FileSystem.OpenAppPackageFileAsync("HomeDB.db").GetAwaiter().GetResult();
                 using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
                     File.WriteAllBytes(DatabaseContext.DbPath, memoryStream.ToArray());
                 }
-            }
+            //}
 
             await LoadRoot();
         }
@@ -80,7 +79,8 @@ namespace HomeDB.ViewModels
             }
         }
 
-        private async Task LoadChildrenAsync(TreeNode parent)
+        [RelayCommand]
+        private async Task LoadChildren(TreeNode parent)
         {
             var containers = await _context.GetContainers();
             var hierarchies = await _context.GetHierarchies();
@@ -133,7 +133,7 @@ namespace HomeDB.ViewModels
         async Task Edit(TreeNode node)
         {
             if (node.Children.Count == 0)
-                await LoadChildrenAsync(node);
+                await LoadChildren(node);
 
             if (node.Type == nameof(Item))
             {
@@ -141,7 +141,8 @@ namespace HomeDB.ViewModels
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>
                 {
                     ["Item"] = item,
-                    ["Node"] = node
+                    ["Node"] = node,
+                    ["Nodes"] = Nodes
                 });
             }
             else
@@ -152,6 +153,61 @@ namespace HomeDB.ViewModels
                     ["SelectedContainer"] = container,
                     ["Node"] = node,
                     ["Nodes"] = Nodes
+                });
+            }
+        }
+
+        [RelayCommand]
+        async Task Add()
+        {
+            var select = await Application.Current.MainPage.DisplayActionSheet(
+                "Выберите элемент",
+                "Отмена",
+                null,
+                "Вещь",
+                "Контейнер");
+
+            if (select == "Вещь")
+            {
+                var item = new Item
+                {
+                    Name = "Новая вещь",
+                    Description = "Создано автоматически",
+                    Icon = "it_abstract.png",
+                    Photo = null,
+                    Price = null
+                };
+
+                await _context.InsertItem(item);
+
+                Nodes.Add(new TreeNode
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Icon = item.Icon,
+                    Type = nameof(Item),
+                    Parent = null,
+                    IsLeaf = true
+                });
+            }
+            else if (select == "Контейнер")
+            {
+                var container = new Container
+                {
+                    Name = "Новая вещь",
+                    Icon = "ct_abstract.png",
+                };
+
+                await _context.InsertContainer(container);
+
+                Nodes.Add(new TreeNode
+                {
+                    Id = container.Id,
+                    Name = container.Name,
+                    Icon = container.Icon,
+                    Type = nameof(Container),
+                    Parent = null,
+                    IsLeaf = true
                 });
             }
         }

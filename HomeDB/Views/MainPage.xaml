@@ -10,27 +10,21 @@
         <vm:MainViewModel/>
     </ContentPage.BindingContext>
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="60"/>
-        </Grid.RowDefinitions>
-
+    <AbsoluteLayout>
         <ScrollView>
             <material:TreeView
                 ItemsSource="{Binding Nodes}"
                 IsLeafPropertyName="IsLeaf"
                 LoadChildrenCommand="{Binding LoadChildrenCommand}"
-                Padding="10"
-                Grid.Row="0">
+                Padding="10">
                 <material:TreeView.ItemTemplate>
                     <DataTemplate>
                         <SwipeView Threshold="100">
                             <SwipeView.RightItems>
                                 <SwipeItems Mode="Execute">
                                     <SwipeItem BackgroundColor="Transparent"
-                                               Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=EditCommand}"
-                                               CommandParameter="{Binding .}"/>
+                                       Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=EditCommand}"
+                                       CommandParameter="{Binding .}"/>
                                 </SwipeItems>
                             </SwipeView.RightItems>
 
@@ -43,5 +37,12 @@
                 </material:TreeView.ItemTemplate>
             </material:TreeView>
         </ScrollView>
-    </Grid>
+        <Button Text="+" 
+            FontSize="30"
+            FontAttributes="Bold"
+            HeightRequest="60"
+            WidthRequest="60"
+            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=AddCommand}"
+            AbsoluteLayout.LayoutBounds="340, 700, AutoSize, AutoSize"/>
+    </AbsoluteLayout>
 </ContentPage>

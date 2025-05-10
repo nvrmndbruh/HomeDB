@@ -2,11 +2,13 @@
 using CommunityToolkit.Mvvm.Input;
 using HomeDB.Data;
 using HomeDB.Models;
+using System.Collections.ObjectModel;
 
 namespace HomeDB.ViewModels
 {
     [QueryProperty("Node", "Node")]
     [QueryProperty(nameof(HomeDB.Models.Item), nameof(HomeDB.Models.Item))]
+    [QueryProperty("Nodes", "Nodes")]
     public partial class EditItemViewModel : ObservableObject
     {
         [ObservableProperty]
@@ -14,6 +16,9 @@ namespace HomeDB.ViewModels
 
         [ObservableProperty]
         public Item item;
+
+        [ObservableProperty]
+        public ObservableCollection<TreeNode> nodes;
 
         DatabaseContext _context = new();
 
@@ -31,20 +36,36 @@ namespace HomeDB.ViewModels
             };
         }
 
-        public void RefreshNode(TreeNode node)
+        public void Refresh(TreeNode node)
         {
-            var parent = Node.Parent;
-            parent?.Children.Remove(Node);
-            parent?.Children.Add(node);
+
+            if (Node.Parent != null)
+            {
+                var parent = Node.Parent;
+                parent.Children.Remove(Node);
+                parent.Children.Add(node);
+            }
+            else
+            {
+                Nodes.Remove(Node);
+                Nodes.Add(node);
+            }
         }
 
         public void DeleteNode(TreeNode node)
         {
             var parent = Node.Parent;
-            parent?.Children.Remove(Node);
-            if (parent?.Children.Count == 0)
+            if (parent != null)
             {
-                parent.IsLeaf = true;
+                parent?.Children.Remove(Node);
+                if (parent?.Children.Count == 0)
+                {
+                    parent.IsLeaf = true;
+                }
+            }
+            else
+            {
+                Nodes.Remove(node);
             }
         }
 
@@ -76,13 +97,26 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task SelectPhoto()
         {
-            var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            "Выберите действие",
+            null,
+            "Выбрать фото",
+            "Очистить фото");
+
+            if (confirm)
             {
-                Title = "Выберите фото"
-            });
-            if (result != null)
+                var result = await MediaPicker.PickPhotoAsync(new MediaPickerOptions
+                {
+                    Title = "Выберите фото"
+                });
+                if (result != null)
+                {
+                    Item.Photo = result.FullPath;
+                }
+            }
+            else
             {
-                Item.Photo = result.FullPath;
+                Item.Photo = null;
             }
         }
 
@@ -108,7 +142,7 @@ namespace HomeDB.ViewModels
                     IsLeaf = Node.IsLeaf,
                     Parent = Node.Parent
                 };
-                RefreshNode(newNode);
+                Refresh(newNode);
                 await Shell.Current.GoToAsync("..");
             }
         }

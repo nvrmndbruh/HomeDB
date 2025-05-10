@@ -48,6 +48,12 @@ namespace HomeDB.Data
             await _database.UpdateAsync(item);
         }
 
+        public async Task InsertItem(Item item)
+        {
+            await Init();
+            await _database.InsertAsync(item);
+        }
+
         public async Task DeleteItem(Item item)
         {
             await Init();
@@ -80,6 +86,12 @@ namespace HomeDB.Data
         {
             await Init();
             await _database.UpdateAsync(container);
+        }
+
+        public async Task InsertContainer(Container container)
+        {
+            await Init();
+            await _database.InsertAsync(container);
         }
 
         public async Task DeleteContainer(Container container)
