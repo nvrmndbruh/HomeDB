@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using HomeDB.Data;
 using HomeDB.Models;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 
 namespace HomeDB.ViewModels
 {
@@ -11,27 +10,32 @@ namespace HomeDB.ViewModels
     {
         public DatabaseContext _context = new();
 
-        public ObservableCollection<TreeNode> Nodes { get; set; } = new();
+        [ObservableProperty]
+        public ObservableCollection<TreeNode> nodes;
 
         [ObservableProperty]
         public TreeNode selectedNode;
 
+        [ObservableProperty]
+        public TreeNode movingNode;
+
         public MainViewModel()
         {
+            Nodes = new ObservableCollection<TreeNode>();
             Init();
         }
 
         public async Task Init()
         {
-            //if (!File.Exists(DatabaseContext.DbPath))
-            //{
+            if (!File.Exists(DatabaseContext.DbPath))
+            {
                 using var stream = FileSystem.OpenAppPackageFileAsync("HomeDB.db").GetAwaiter().GetResult();
                 using (var memoryStream = new MemoryStream())
                 {
                     stream.CopyTo(memoryStream);
                     File.WriteAllBytes(DatabaseContext.DbPath, memoryStream.ToArray());
                 }
-            //}
+            }
 
             await LoadRoot();
         }
@@ -129,7 +133,6 @@ namespace HomeDB.ViewModels
             }
         }
 
-
         [RelayCommand]
         async Task Edit()
         {
@@ -156,6 +159,55 @@ namespace HomeDB.ViewModels
                     ["Nodes"] = Nodes
                 });
             }
+        }
+
+        [RelayCommand]
+        async Task PickUp()
+        {
+            var hierarchy = await _context.GetChildrenHierarchy(SelectedNode.Id, SelectedNode.Type);
+            if (hierarchy != null)
+                await _context.DeleteHierarchy(hierarchy.Id);
+
+            if (SelectedNode.Parent != null)
+            {
+                SelectedNode.Parent.Children.Remove(SelectedNode);
+                if (SelectedNode.Parent.Children.Count() == 0)
+                {
+                    SelectedNode.Parent.IsLeaf = true;
+                }
+                SelectedNode.Parent = null;
+            }
+            else
+            {
+                Nodes.Remove(SelectedNode);
+            }
+            MovingNode = SelectedNode;
+            SelectedNode = null;
+        }
+
+        [RelayCommand]
+        async Task DropDown()
+        {
+            MovingNode.Parent = SelectedNode;
+            if (SelectedNode != null)
+            {
+                var hierarchy = new Hierarchy
+                {
+                    ParentId = SelectedNode.Id,
+                    ChildId = MovingNode.Id,
+                    ChildType = MovingNode.Type
+                };
+                await _context.InsertHierarchy(hierarchy);
+                SelectedNode.Children.Clear();
+                SelectedNode.IsLeaf = false;
+                await LoadChildren(SelectedNode);
+            }
+            else
+            {
+                Nodes.Add(MovingNode);
+            }
+            
+            MovingNode = null;
         }
 
         [RelayCommand]

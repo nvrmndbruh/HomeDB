@@ -54,14 +54,15 @@ namespace HomeDB.Data
             await _database.InsertAsync(item);
         }
 
-        public async Task DeleteItem(Item item)
+        public async Task DeleteItem(int id)
         {
             await Init();
 
             // удаляем связанные записи из таблицы Hierarchy
             await _database.Table<Hierarchy>()
-                .DeleteAsync(h => h.ChildId == item.Id && h.ChildType == nameof(Item));
-            await _database.DeleteAsync(item);
+                .DeleteAsync(h => h.ChildId == id && h.ChildType == nameof(Item));
+            await _database.Table<Item>()
+                .DeleteAsync(i => i.Id == id);
         }
         #endregion
 
@@ -94,10 +95,10 @@ namespace HomeDB.Data
             await _database.InsertAsync(container);
         }
 
-        public async Task DeleteContainer(Container container)
+        public async Task DeleteContainer(int id)
         {
             await Init();
-            await _database.Table<Container>().DeleteAsync(c => c.Id == container.Id);
+            await _database.Table<Container>().DeleteAsync(c => c.Id == id);
         }
         #endregion
 
@@ -110,36 +111,29 @@ namespace HomeDB.Data
             return hierarchies;
         }
 
-        public async Task<Hierarchy> GetChildrenHierarchy(Container container)
+        public async Task<Hierarchy> GetChildrenHierarchy(int childId, string childType)
         {
             await Init();
 
             var hierarchies = await _database.Table<Hierarchy>()
-                .FirstOrDefaultAsync(c => c.ChildId == container.Id && c.ChildType == nameof(Container));
+                .FirstOrDefaultAsync(c => c.ChildId == childId && c.ChildType == childType);
             return hierarchies;
         }
 
-        public async Task<Hierarchy> GetChildrenHierarchy(Item item)
+        public async Task<IEnumerable<Hierarchy>> GetParentHierarchies(int parentId)
         {
             await Init();
 
             var hierarchies = await _database.Table<Hierarchy>()
-                .FirstOrDefaultAsync(c => c.ChildId == item.Id && c.ChildType == nameof(Item));
-            return hierarchies;
-        }
-
-        public async Task<IEnumerable<Hierarchy>> GetParentHierarchies(Container container)
-        {
-            await Init();
-
-            var hierarchies = await _database.Table<Hierarchy>()
-                .Where(p => p.ParentId == container.Id)
+                .Where(p => p.ParentId == parentId)
                 .ToListAsync();
             return hierarchies;
         }
 
         public async Task UpdateHierarchy(int parentId, IEnumerable<Hierarchy> hierarchies)
         {
+            await Init();
+
             foreach (var hierarchie in hierarchies)
             {
                 hierarchie.ParentId = parentId;
@@ -149,8 +143,24 @@ namespace HomeDB.Data
 
         public async Task DeleteHierarchies(IEnumerable<Hierarchy> hierarchies)
         {
+            await Init();
+
             foreach (var hierarchy in hierarchies)
                 await _database.DeleteAsync(hierarchy);
+        }
+
+        public async Task InsertHierarchy(Hierarchy hierarchy)
+        {
+            await Init();
+
+            await _database.InsertAsync(hierarchy);
+        }
+
+        public async Task DeleteHierarchy(int id)
+        {
+            await Init();
+
+            await _database.Table<Hierarchy>().DeleteAsync(h => h.Id == id);
         }
         #endregion
     }

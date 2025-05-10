@@ -43,7 +43,37 @@
                 HeightRequest="50"
                 WidthRequest="50"
                 IsVisible="{Binding SelectedNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
+                IsEnabled="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}}"
                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=EditCommand}"
-                AbsoluteLayout.LayoutBounds="350, 630, AutoSize, AutoSize"/>
+                AbsoluteLayout.LayoutBounds="350, 635, AutoSize, AutoSize"/>
+
+        <Button Text='^'
+                FontSize="25"
+                FontAttributes="Bold"
+                HeightRequest="50"
+                WidthRequest="50"
+                IsVisible="{Binding SelectedNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
+                IsEnabled="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}}"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=PickUpCommand}"
+                AbsoluteLayout.LayoutBounds="350, 580, AutoSize, AutoSize"/>
+
+        <Border IsVisible="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
+                AbsoluteLayout.LayoutBounds="20, 700, 300, 60"
+                Padding="20, 8, 0, 10"
+                Background="DimGray">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DropDownCommand}"/>
+            </Border.GestureRecognizers>
+            
+            <HorizontalStackLayout Spacing="10">
+                <Image Source="{Binding MovingNode.Icon}" HeightRequest="30"/>
+                <Label Text="{Binding MovingNode.Name}" VerticalOptions="Center" FontSize="30"/>
+            </HorizontalStackLayout>
+        </Border>
+
+
     </AbsoluteLayout>
 </ContentPage>

@@ -184,16 +184,16 @@ namespace HomeDB.ViewModels
                 if (node.Type == (nameof(Item)))
                 {
                     var item = await _context.GetItem(node.Id);
-                    await _context.DeleteItem(item);
+                    await _context.DeleteItem(node.Id);
                     Node = await RefreshChildren(Node, node, true);
                 }
                 else
                 {
                     var container = await _context.GetContainer(node.Id);
-                    var parent = await _context.GetParentHierarchies(container);
-                    var child = await _context.GetChildrenHierarchy(container);
+                    var parent = await _context.GetParentHierarchies(node.Id);
+                    var child = await _context.GetChildrenHierarchy(node.Id, node.Type);
                     await _context.UpdateHierarchy(child.ParentId, parent);
-                    await _context.DeleteContainer(container);
+                    await _context.DeleteContainer(node.Id);
                     Node = await RefreshChildren(Node, node, true);
                 }
             }
@@ -212,18 +212,18 @@ namespace HomeDB.ViewModels
             {
                 if (Node.Parent != null)
                 {
-                    var parent = await _context.GetParentHierarchies(SelectedContainer);
-                    var child = await _context.GetChildrenHierarchy(SelectedContainer);
+                    var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
+                    var child = await _context.GetChildrenHierarchy(SelectedContainer.Id, nameof(Container));
                     await _context.UpdateHierarchy(child.ParentId, parent);
-                    await _context.DeleteContainer(SelectedContainer);
+                    await _context.DeleteContainer(SelectedContainer.Id);
                     Node = await RefreshChildren(Node.Parent, Node);
                     await Shell.Current.GoToAsync("..");
                 }
                 else
                 {
-                    var parent = await _context.GetParentHierarchies(SelectedContainer);
+                    var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
                     await _context.DeleteHierarchies(parent);
-                    await _context.DeleteContainer(SelectedContainer);
+                    await _context.DeleteContainer(SelectedContainer.Id);
                     foreach (var children in Node.Children)
                     {
                         children.Parent = Node.Parent;
