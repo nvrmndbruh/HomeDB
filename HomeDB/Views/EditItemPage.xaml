@@ -15,11 +15,8 @@
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
-
-        <Label Grid.Row="0" Text="+" FontSize="60" IsVisible="{Binding Item.Photo, Converter={StaticResource StringToVisibilityConverter}}" TextColor="White"
-               VerticalOptions="Center" HorizontalOptions="Center"/>
 
         <Border Grid.Row="0" Margin="30, 0, 30, 20">
             <Border.StrokeShape>
@@ -28,8 +25,12 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=SelectPhotoCommand}"/>
             </Border.GestureRecognizers>
-            <Image Source="{Binding Item.Photo, Mode=TwoWay}"/>
+            <Image Source="{Binding Photo, Converter={StaticResource NullToStringConverter}}"/>
         </Border>
+
+        <Label Grid.Row="0" Text="+" FontSize="80" IsVisible="{Binding Photo, Converter={StaticResource StringToVisibilityConverter}}"
+               TextColor="{StaticResource DarkEbony}"
+               VerticalOptions="Center" HorizontalOptions="Center"/>
 
         <ScrollView Grid.Row="1">
             <StackLayout Padding="30, 0, 30, 0" VerticalOptions="Start" Grid.Row="1" Spacing="20">
@@ -39,16 +40,20 @@
 
                 <StackLayout>
                     <Label Text="Иконка"/>
-                    <HorizontalStackLayout Spacing="20">
-                        <Image HeightRequest="30" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
-                        <Picker x:Name="IconPicker" SelectedItem="{Binding Item.Icon}">
+                    <Grid ColumnSpacing="10" Padding="2, 5, 0, 5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="40"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" HeightRequest="40" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
+                        <Picker Grid.Column="1" x:Name="IconPicker" SelectedItem="{Binding Item.Icon}">
                             <Picker.Items>
                                 <x:String>it_abstract.png</x:String>
-                                <x:String>tshirt.png</x:String>
+                                <x:String>thirt.png</x:String>
                                 <x:String>plug.png</x:String>
                             </Picker.Items>
                         </Picker>
-                    </HorizontalStackLayout>
+                    </Grid>
                 </StackLayout>
 
                 <StackLayout>
@@ -59,25 +64,23 @@
             </StackLayout>
         </ScrollView>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Padding="20, 0, 20, 10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            
+
             <Button Margin="8"
                     Grid.Column="0"
-                    Text="SAVE"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=SaveCommand}"/>
+                    Text="СОХРАНИТЬ"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
 
             <Button Margin="8"
+                    TextColor="{StaticResource PaleMagenta}"
                     Grid.Column="1"
-                    Text="DELETE"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=DeleteCommand}"/>
-
+                    Text="УДАЛИТЬ"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteCommand}"/>
         </Grid>
-        
+
     </Grid>
 </ContentPage>

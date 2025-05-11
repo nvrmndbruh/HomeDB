@@ -4,7 +4,8 @@
              xmlns:vm="clr-namespace:HomeDB.ViewModels"
              x:Class="HomeDB.EditContainerPage"
              Title="Редактирование контейнера"
-             xmlns:converter="clr-namespace:HomeDB.Converters">
+             xmlns:converter="clr-namespace:HomeDB.Converters"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome">
 
     <ContentPage.BindingContext>
         <vm:EditContainerViewModel/>
@@ -14,7 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="3*"/>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="70"/>
         </Grid.RowDefinitions>
         
         <StackLayout Padding="30" VerticalOptions="Start" Spacing="20">
@@ -26,16 +27,20 @@
 
             <StackLayout>
                 <Label Text="Иконка"/>
-                <HorizontalStackLayout Spacing="20">
-                    <Image HeightRequest="30" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
-                    <Picker x:Name="IconPicker" SelectedItem="{Binding SelectedContainer.Icon}">
+                <Grid ColumnSpacing="10" Padding="2, 5, 0, 5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Image Grid.Column="0" HeightRequest="40" BindingContext="{x:Reference IconPicker}" Source="{Binding SelectedItem}"/>
+                    <Picker Grid.Column="1" x:Name="IconPicker" SelectedItem="{Binding SelectedContainer.Icon}">
                         <Picker.Items>
                             <x:String>ct_abstract.png</x:String>
                             <x:String>house.png</x:String>
                             <x:String>box.png</x:String>
                         </Picker.Items>
                     </Picker>
-                </HorizontalStackLayout>
+                </Grid>
             </StackLayout>
 
         </StackLayout>
@@ -57,11 +62,15 @@
                             <Image Source="{Binding Icon}" WidthRequest="25" Grid.Column="0"/>
                             <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="20" Grid.Column="1" Padding="10"/>
 
-                            <HorizontalStackLayout Grid.Column="2" Spacing="0" HorizontalOptions="End">
-                                <Button Text="/" Scale="0.7" FontSize="20" FontAttributes="Bold"
+                            <HorizontalStackLayout Grid.Column="2" HorizontalOptions="End">
+                                <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.Pen}, Color={StaticResource SummerGreen}, Size=24}"
+                                        Scale="0.7"
+                                        CornerRadius="10"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=EditChildCommand}"
                                         CommandParameter="{Binding .}"/>
-                                <Button Text="-" Scale="0.7" FontSize="20" FontAttributes="Bold"
+                                <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.TrashCan}, Color={StaticResource SummerGreen}, Size=24}" 
+                                        Scale="0.7"
+                                        CornerRadius="10"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteChildCommand}"
                                         CommandParameter="{Binding .}"/>
                             </HorizontalStackLayout>
@@ -72,25 +81,22 @@
             </CollectionView>
         </Border>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="2" Padding="20, 0, 20, 10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
             <Button Margin="8"
                     Grid.Column="0"
-                    Text="SAVE"
+                    Text="СОХРАНИТЬ"
                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
 
             <Button Margin="8"
+                    TextColor="{StaticResource PaleMagenta}"
                     Grid.Column="1"
-                    Text="DELETE"
+                    Text="УДАЛИТЬ"
                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteCommand}"/>
-
         </Grid>
-
     </Grid>
 </ContentPage>

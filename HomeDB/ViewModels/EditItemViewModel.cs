@@ -25,6 +25,9 @@ namespace HomeDB.ViewModels
         [ObservableProperty]
         public string? priceInput;
 
+        [ObservableProperty]
+        public string? photo;
+
         public EditItemViewModel()
         {
             this.PropertyChanged += (sender, e) =>
@@ -32,6 +35,7 @@ namespace HomeDB.ViewModels
                 if (e.PropertyName == nameof(Item) && Item != null)
                 {
                     PriceInput = Item.Price?.ToString();
+                    Photo = Item.Photo;
                 }
             };
         }
@@ -111,12 +115,12 @@ namespace HomeDB.ViewModels
                 });
                 if (result != null)
                 {
-                    Item.Photo = result.FullPath;
+                    Photo = result.FullPath;
                 }
             }
             else
             {
-                Item.Photo = null;
+                Photo = null;
             }
         }
 
@@ -132,6 +136,7 @@ namespace HomeDB.ViewModels
             else
             {
                 Item.Price = string.IsNullOrEmpty(PriceInput) ? null : decimal.Parse(PriceInput);
+                Item.Photo = Photo;
                 await _context.UpdateItem(Item);
                 var newNode = new TreeNode
                 {
