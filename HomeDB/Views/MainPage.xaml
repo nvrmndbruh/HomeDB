@@ -4,6 +4,7 @@
              x:Class="HomeDB.MainPage"
              xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              xmlns:vm="clr-namespace:HomeDB.ViewModels"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome"
              Title="Главная">
 
     <ContentPage.BindingContext>
@@ -21,25 +22,28 @@
                 SelectedItem="{Binding SelectedNode}">
                 <material:TreeView.ItemTemplate>
                     <DataTemplate>
-                        <HorizontalStackLayout Spacing="10">
-                            <Image Source="{Binding Icon}" HeightRequest="30"/>
-                            <Label Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
-                        </HorizontalStackLayout>
+                        <Grid ColumnSpacing="10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="30"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="300"/>
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.Column="0" Source="{Binding Icon}" HeightRequest="30"/>
+                            <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
+                        </Grid>
                     </DataTemplate>
                 </material:TreeView.ItemTemplate>
             </material:TreeView>
         </ScrollView>
         <Button Text="+" 
                 FontSize="30"
-                FontAttributes="Bold"
                 HeightRequest="60"
                 WidthRequest="60"
                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=AddCommand}"
                 AbsoluteLayout.LayoutBounds="340, 700, AutoSize, AutoSize"/>
 
-        <Button Text="/" 
+        <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.Pen}, Color={StaticResource SummerGreen}}"
                 FontSize="25"
-                FontAttributes="Bold"
                 HeightRequest="50"
                 WidthRequest="50"
                 IsVisible="{Binding SelectedNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
@@ -47,9 +51,8 @@
                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=EditCommand}"
                 AbsoluteLayout.LayoutBounds="350, 635, AutoSize, AutoSize"/>
 
-        <Button Text='^'
+        <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.ArrowUpFromBracket}, Color={StaticResource SummerGreen}}"
                 FontSize="25"
-                FontAttributes="Bold"
                 HeightRequest="50"
                 WidthRequest="50"
                 IsVisible="{Binding SelectedNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
@@ -59,8 +62,7 @@
 
         <Border IsVisible="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
                 AbsoluteLayout.LayoutBounds="20, 700, 300, 60"
-                Padding="20, 8, 0, 10"
-                Background="DimGray">
+                Padding="20, 8, 0, 10">
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
