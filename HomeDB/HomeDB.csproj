@@ -45,7 +45,7 @@
 		<!-- App Icon -->
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#16161B" BaseSize="191,52" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
@@ -64,6 +64,10 @@
 	  <None Remove="Resources\Images\Items\it_abstract.png" />
 	  <None Remove="Resources\Images\Items\plug.png" />
 	  <None Remove="Resources\Images\Items\tshirt.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#16161B" BaseSize="20,20" Resize="false"/>
 	</ItemGroup>
 
 	<ItemGroup>
