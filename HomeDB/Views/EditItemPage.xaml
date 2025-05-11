@@ -49,7 +49,7 @@
                         <Picker Grid.Column="1" x:Name="IconPicker" SelectedItem="{Binding Item.Icon}">
                             <Picker.Items>
                                 <x:String>it_abstract.png</x:String>
-                                <x:String>thirt.png</x:String>
+                                <x:String>tshirt.png</x:String>
                                 <x:String>plug.png</x:String>
                             </Picker.Items>
                         </Picker>
@@ -58,7 +58,7 @@
 
                 <StackLayout>
                     <Label Text="Цена"/>
-                    <Entry Text="{Binding PriceInput, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" Placeholder="0.0"/>
+                    <Entry Text="{Binding PriceInput, Mode=TwoWay, Converter={StaticResource NullToStringConverter}}" Placeholder="0.00"/>
                 </StackLayout>
                 
             </StackLayout>
@@ -73,13 +73,13 @@
             <Button Margin="8"
                     Grid.Column="0"
                     Text="СОХРАНИТЬ"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=SaveCommand}"/>
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=SaveCommand}"/>
 
             <Button Margin="8"
                     TextColor="{StaticResource PaleMagenta}"
                     Grid.Column="1"
                     Text="УДАЛИТЬ"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditContainerViewModel}}, Path=DeleteCommand}"/>
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EditItemViewModel}}, Path=DeleteCommand}"/>
         </Grid>
 
     </Grid>

@@ -16,13 +16,14 @@ namespace HomeDB.Data
             if (_database != null)
                 return;
 
-            _database = new SQLiteAsyncConnection(DbPath);
+            _database = new SQLiteAsyncConnection(DbPath, SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache);
 
             await _database.CreateTableAsync<Item>();
             await _database.CreateTableAsync<Container>();
             await _database.CreateTableAsync<Hierarchy>();
             await _database.CreateTableAsync<Category>();
             await _database.CreateTableAsync<ItemCategory>();
+            await _database.ExecuteAsync("PRAGMA foreign_keys = ON;");
         }
 
         #region Item methods
@@ -161,6 +162,78 @@ namespace HomeDB.Data
             await Init();
 
             await _database.Table<Hierarchy>().DeleteAsync(h => h.Id == id);
+        }
+        #endregion
+
+        #region Category methods
+        public async Task<IEnumerable<Category>> GetCategories()
+        {
+            await Init();
+
+            var categories = await _database.Table<Category>().ToListAsync();
+            return categories;
+        }
+
+        public async Task<Category> GetCategory(int id)
+        {
+            await Init();
+
+            var category = await _database.Table<Category>().FirstOrDefaultAsync(c => c.Id == id);
+            return category;
+        }
+
+        public async Task UpdateCategory(Category category)
+        {
+            await Init();
+            await _database.UpdateAsync(category);
+        }
+
+        public async Task InsertCategory(Category category)
+        {
+            await Init();
+            await _database.InsertAsync(category);
+        }
+
+        public async Task DeleteCategory(int id)
+        {
+            await Init();
+            await _database.Table<Category>().DeleteAsync(c => c.Id == id);
+        }
+
+        public async Task DeleteCategory(Category category)
+        {
+            await Init();
+            await _database.DeleteAsync(category);
+        }
+        #endregion
+
+        #region ItemCategory methods
+        public async Task<IEnumerable<ItemCategory>> GetItemCategories()
+        {
+            await Init();
+
+            var categories = await _database.Table<ItemCategory>().ToListAsync();
+            return categories;
+        }
+
+        public async Task<ItemCategory> GetItemCategory(int id)
+        {
+            await Init();
+
+            var category = await _database.Table<ItemCategory>().FirstOrDefaultAsync(c => c.Id == id);
+            return category;
+        }
+
+        public async Task InsertItemCategory(ItemCategory category)
+        {
+            await Init();
+            await _database.InsertAsync(category);
+        }
+
+        public async Task DeleteItemCategory(int id)
+        {
+            await Init();
+            await _database.Table<ItemCategory>().DeleteAsync(c => c.Id == id);
         }
         #endregion
     }

@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using HomeDB.Data;
 using HomeDB.Models;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace HomeDB.ViewModels
 {
@@ -70,7 +71,7 @@ namespace HomeDB.ViewModels
             }
         }
 
-        public void Refresh(TreeNode node)
+        public async Task Refresh(TreeNode node)
         {
             if (Node.Parent != null)
             {
@@ -82,6 +83,7 @@ namespace HomeDB.ViewModels
             {
                 Nodes.Remove(Node);
                 Nodes.Add(node);
+                await LoadChildrenAsync(node);
             }
         }
 
@@ -138,7 +140,7 @@ namespace HomeDB.ViewModels
                     IsLeaf = Node.IsLeaf,
                     Parent = Node.Parent
                 };
-                Refresh(newNode);
+                await Refresh(newNode);
                 await Shell.Current.GoToAsync("..");
             }
         }

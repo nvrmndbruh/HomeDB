@@ -28,7 +28,7 @@
                                 <ColumnDefinition/>
                                 <ColumnDefinition Width="300"/>
                             </Grid.ColumnDefinitions>
-                            <Image Grid.Column="0" Source="{Binding Icon}" HeightRequest="30"/>
+                            <Image Grid.Column="0" Source="{Binding Icon}" WidthRequest="30"/>
                             <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
                         </Grid>
                     </DataTemplate>

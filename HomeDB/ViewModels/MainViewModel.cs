@@ -159,6 +159,7 @@ namespace HomeDB.ViewModels
                     ["Nodes"] = Nodes
                 });
             }
+            SelectedNode = null;
         }
 
         [RelayCommand]
@@ -188,26 +189,33 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task DropDown()
         {
-            MovingNode.Parent = SelectedNode;
-            if (SelectedNode != null)
+            if (SelectedNode.Type != nameof(Item))
             {
-                var hierarchy = new Hierarchy
+                MovingNode.Parent = SelectedNode;
+                if (SelectedNode != null)
                 {
-                    ParentId = SelectedNode.Id,
-                    ChildId = MovingNode.Id,
-                    ChildType = MovingNode.Type
-                };
-                await _context.InsertHierarchy(hierarchy);
-                SelectedNode.Children.Clear();
-                SelectedNode.IsLeaf = false;
-                await LoadChildren(SelectedNode);
+                    var hierarchy = new Hierarchy
+                    {
+                        ParentId = SelectedNode.Id,
+                        ChildId = MovingNode.Id,
+                        ChildType = MovingNode.Type
+                    };
+                    await _context.InsertHierarchy(hierarchy);
+                    SelectedNode.Children.Clear();
+                    SelectedNode.IsLeaf = false;
+                    await LoadChildren(SelectedNode);
+                }
+                else
+                {
+                    Nodes.Add(MovingNode);
+                }
+
+                MovingNode = null;
             }
             else
             {
-                Nodes.Add(MovingNode);
+                App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
             }
-            
-            MovingNode = null;
         }
 
         [RelayCommand]

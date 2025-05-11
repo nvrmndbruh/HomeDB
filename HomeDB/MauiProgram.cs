@@ -26,6 +26,15 @@ namespace HomeDB
             builder.Services.AddSingleton<MainPage>();
             builder.Services.AddSingleton<MainViewModel>();
 
+            builder.Services.AddTransient<EditCategoryPage>();
+            builder.Services.AddTransient<EditCategoryViewModel>();
+
+            builder.Services.AddTransient<CategoryPage>();
+            builder.Services.AddTransient<CategoryViewModel>();
+
+            builder.Services.AddTransient<ItemListPage>();
+            builder.Services.AddTransient<ItemListViewModel>();
+
             builder.Services.AddTransient<EditItemPage>();
             builder.Services.AddTransient<EditItemViewModel>();
 
