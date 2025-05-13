@@ -14,7 +14,7 @@
         <Border.StrokeShape>
             <RoundRectangle CornerRadius="20"/>
         </Border.StrokeShape>
-        <CollectionView ItemsSource="{Binding Nodes, Mode=TwoWay}">
+        <CollectionView ItemsSource="{Binding Nodes, Mode=TwoWay}" EmptyView="Нет доступных вещей">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Grid>

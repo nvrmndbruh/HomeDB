@@ -31,7 +31,7 @@
             <Border.StrokeShape>
                 <RoundRectangle CornerRadius="20"/>
             </Border.StrokeShape>
-            <CollectionView ItemsSource="{Binding Node.Children, Mode=TwoWay}">
+            <CollectionView ItemsSource="{Binding Node.Children, Mode=TwoWay}" EmptyView="Категория пустая">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Grid>

@@ -23,8 +23,8 @@ namespace HomeDB
 
             builder.Services.AddSingleton<DatabaseContext>();
 
-            builder.Services.AddSingleton<MainPage>();
-            builder.Services.AddSingleton<MainViewModel>();
+            builder.Services.AddTransient<MainPage>();
+            builder.Services.AddTransient<MainViewModel>();
 
             builder.Services.AddTransient<EditCategoryPage>();
             builder.Services.AddTransient<EditCategoryViewModel>();

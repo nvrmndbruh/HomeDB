@@ -189,11 +189,11 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task DropDown()
         {
-            if (SelectedNode.Type != nameof(Item))
+            if (SelectedNode !=  null)
             {
-                MovingNode.Parent = SelectedNode;
-                if (SelectedNode != null)
+                if (SelectedNode.Type != nameof(Item))
                 {
+                    MovingNode.Parent = SelectedNode;
                     var hierarchy = new Hierarchy
                     {
                         ParentId = SelectedNode.Id,
@@ -207,15 +207,15 @@ namespace HomeDB.ViewModels
                 }
                 else
                 {
-                    Nodes.Add(MovingNode);
+                    App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
                 }
-
-                MovingNode = null;
             }
             else
             {
-                App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
+                Nodes.Add(MovingNode);
             }
+
+            MovingNode = null;
         }
 
         [RelayCommand]
