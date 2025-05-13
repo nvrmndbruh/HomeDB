@@ -19,7 +19,8 @@
                 LoadChildrenCommand="{Binding LoadChildrenCommand}"
                 Padding="10"
                 SelectionMode="Single"
-                SelectedItem="{Binding SelectedNode}">
+                SelectedItem="{Binding SelectedNode}"
+                IsExpandedPropertyName="IsExpanded">
                 <material:TreeView.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnSpacing="10">
@@ -69,13 +70,38 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DropDownCommand}"/>
             </Border.GestureRecognizers>
-            
+
             <HorizontalStackLayout Spacing="10">
                 <Image Source="{Binding MovingNode.Icon}" HeightRequest="30"/>
                 <Label Text="{Binding MovingNode.Name}" VerticalOptions="Center" FontSize="30"/>
             </HorizontalStackLayout>
         </Border>
 
+        <ListView ItemsSource="{Binding SearchResults}"
+                  AbsoluteLayout.LayoutBounds="1, 1"/>
 
+        <Border IsVisible="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}}"
+                    AbsoluteLayout.LayoutBounds="20, 700, 300, 60"
+                    Padding="4, 1, 0 ,0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DropDownCommand}"/>
+            </Border.GestureRecognizers>
+            <StackLayout>
+                <HorizontalStackLayout Spacing="10">
+                    <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.MagnifyingGlass}, Color={StaticResource SummerGreen}}"
+                    HeightRequest="48"
+                    WidthRequest="48"
+                    BindingContext="{x:Reference SeachBar}"
+                    IsEnabled="{Binding Text, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
+                    <Entry Text="{Binding SearchText, Converter={StaticResource NullToStringConverter}, Mode=TwoWay}"
+                           VerticalOptions="Center" FontSize="20" Placeholder="Поиск" x:Name="SeachBar"/>
+                </HorizontalStackLayout>
+            </StackLayout>
+
+        </Border>
     </AbsoluteLayout>
 </ContentPage>
