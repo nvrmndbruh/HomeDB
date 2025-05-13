@@ -21,16 +21,9 @@ namespace HomeDB.ViewModels
         [ObservableProperty]
         public TreeNode movingNode;
 
-        [ObservableProperty]
-        public string searchText;
-
-        [ObservableProperty]
-        public ObservableCollection<string> searchResults;
-
         public MainViewModel()
         {
             Nodes = new ObservableCollection<TreeNode>();
-            SearchResults = new();
             Init();
         }
 
@@ -145,41 +138,7 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task Search()
         {
-            var items = await _context.GetItems();
-            var containers = await _context.GetContainers();
-
-            var search = items.Where(i => i.Name == string.Concat(SearchText)).ToList();
-
-            if (search == null)
-                App.Current.MainPage.DisplayAlert("Ошибка", "Вещь с таким именем не найдена", "ОК");
-            
-            foreach(var item in search)
-            {
-                string path = "";
-                var childHierarchy = await _context.GetChildrenHierarchy(item.Id, nameof(Item));
-
-                if (childHierarchy  == null)
-                {
-                    SearchResults.Add(item.Name);
-                    break;
-                }
-
-                var parent = await _context.GetContainer(childHierarchy.ParentId);
-                path = parent.Name + "/" + path;
-
-                while (parent != null)
-                {
-                    childHierarchy = await _context.GetChildrenHierarchy(parent.Id, nameof(Container));
-                    if (childHierarchy == null)
-                        break;
-                    parent = await _context.GetContainer(childHierarchy.ParentId);
-                    path = parent.Name + "/" + path;
-                }
-                SearchResults.Add(path);
-            }
-
-            if (SearchResults.Count == 0)
-                App.Current.MainPage.DisplayAlert("Ошибка", "Вещь с таким именем не найдена", "ОК");
+            await Shell.Current.GoToAsync(nameof(SearchPage));
         }
 
         [RelayCommand]
@@ -253,6 +212,7 @@ namespace HomeDB.ViewModels
                     SelectedNode.Children.Clear();
                     SelectedNode.IsLeaf = false;
                     await LoadChildren(SelectedNode);
+                    MovingNode = null;
                 }
                 else
                 {
@@ -262,9 +222,8 @@ namespace HomeDB.ViewModels
             else
             {
                 Nodes.Add(MovingNode);
+                MovingNode = null;
             }
-
-            MovingNode = null;
         }
 
         [RelayCommand]

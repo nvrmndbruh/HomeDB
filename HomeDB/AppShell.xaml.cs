@@ -10,6 +10,7 @@
             Routing.RegisterRoute(nameof(EditContainerPage), typeof(EditContainerPage));
             Routing.RegisterRoute(nameof(EditCategoryPage), typeof(EditCategoryPage));
             Routing.RegisterRoute(nameof(ItemListPage), typeof(ItemListPage));
+            Routing.RegisterRoute(nameof(SearchPage), typeof(SearchPage));
         }
     }
 }

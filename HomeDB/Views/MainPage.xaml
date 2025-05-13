@@ -12,7 +12,24 @@
     </ContentPage.BindingContext>
 
     <AbsoluteLayout>
-        <ScrollView Orientation="Both">
+        <Border AbsoluteLayout.LayoutBounds="20, 0, 370, 60"
+                Padding="4, 0, 0 , 1">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="10">
+                <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.MagnifyingGlass}, Color={StaticResource SummerGreen}}"
+                HeightRequest="48"
+                WidthRequest="48"
+                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
+                <Label Text="Поиск"
+                   VerticalOptions="Center" FontSize="20"/>
+            </HorizontalStackLayout>
+        </Border>
+        <ScrollView Orientation="Both" AbsoluteLayout.LayoutBounds="0, 60, 400, 640">
             <material:TreeView
                 ItemsSource="{Binding Nodes}"
                 IsLeafPropertyName="IsLeaf"
@@ -27,7 +44,6 @@
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="30"/>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="300"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.Column="0" Source="{Binding Icon}" WidthRequest="30"/>
                             <Label Grid.Column="1" Text="{Binding Name}" VerticalOptions="Center" FontSize="30"/>
@@ -77,31 +93,6 @@
             </HorizontalStackLayout>
         </Border>
 
-        <ListView ItemsSource="{Binding SearchResults}"
-                  AbsoluteLayout.LayoutBounds="1, 1"/>
-
-        <Border IsVisible="{Binding MovingNode, Converter={StaticResource StringToVisibilityConverter}}"
-                    AbsoluteLayout.LayoutBounds="20, 700, 300, 60"
-                    Padding="4, 1, 0 ,0">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20"/>
-            </Border.StrokeShape>
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=DropDownCommand}"/>
-            </Border.GestureRecognizers>
-            <StackLayout>
-                <HorizontalStackLayout Spacing="10">
-                    <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.MagnifyingGlass}, Color={StaticResource SummerGreen}}"
-                    HeightRequest="48"
-                    WidthRequest="48"
-                    BindingContext="{x:Reference SeachBar}"
-                    IsEnabled="{Binding Text, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter='reverse'}"
-                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
-                    <Entry Text="{Binding SearchText, Converter={StaticResource NullToStringConverter}, Mode=TwoWay}"
-                           VerticalOptions="Center" FontSize="20" Placeholder="Поиск" x:Name="SeachBar"/>
-                </HorizontalStackLayout>
-            </StackLayout>
-
-        </Border>
+        
     </AbsoluteLayout>
 </ContentPage>

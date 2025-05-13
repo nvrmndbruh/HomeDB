@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="HomeDB.SearchPage"
+             Title="Поиск вещи"
+             xmlns:vm="clr-namespace:HomeDB.ViewModels"
+             xmlns:fa="clr-namespace:UraniumUI.Icons.FontAwesome;assembly=UraniumUI.Icons.FontAwesome">
+    <ContentPage.BindingContext>
+        <vm:SearchViewModel/>
+    </ContentPage.BindingContext>
+    
+    <Grid RowDefinitions="50, *">
+        <SearchBar Placeholder="Поиск вещи"
+                   Text="{Binding SearchText}">
+        </SearchBar>
+        <Border Grid.Row="1" Margin="30" Padding="16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="20"/>
+            </Border.StrokeShape>
+            <CollectionView ItemsSource="{Binding SearchResults, Mode=TwoWay}" EmptyView="Ничего не найдено">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Grid.Column="0" Padding="10">
+                            <Label Text="{Binding Name}" FontSize="20" FontAttributes="Bold"/>
+                            <Label Text="{Binding Path}" TextColor="{StaticResource SummerGreen}"/>
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Border>
+    </Grid>
+    
+</ContentPage>
