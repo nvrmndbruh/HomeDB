@@ -235,7 +235,6 @@ namespace HomeDB.ViewModels
                 null,
                 "Вещь",
                 "Контейнер");
-
             if (select == "Вещь")
             {
                 var item = new Item
@@ -249,15 +248,35 @@ namespace HomeDB.ViewModels
 
                 await _context.InsertItem(item);
 
-                Nodes.Add(new TreeNode
+                if (SelectedNode == null)
+                    Nodes.Add(new TreeNode
+                    {
+                        Id = item.Id,
+                        Name = item.Name,
+                        Icon = item.Icon,
+                        Type = nameof(Item),
+                        Parent = null,
+                        IsLeaf = true
+                    });
+                else
                 {
-                    Id = item.Id,
-                    Name = item.Name,
-                    Icon = item.Icon,
-                    Type = nameof(Item),
-                    Parent = null,
-                    IsLeaf = true
-                });
+                    if (SelectedNode.Type == nameof(Item))
+                    {
+                        App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
+                        return;
+                    }
+                        
+
+                    SelectedNode.IsLeaf = false;
+                    await _context.InsertHierarchy(new Hierarchy
+                    {
+                        ParentId = SelectedNode.Id,
+                        ChildId = item.Id,
+                        ChildType = nameof(Item)
+                    });
+                    SelectedNode.Children.Clear();
+                    await LoadChildren(SelectedNode);
+                }
             }
             else if (select == "Контейнер")
             {
@@ -269,16 +288,35 @@ namespace HomeDB.ViewModels
 
                 await _context.InsertContainer(container);
 
-                Nodes.Add(new TreeNode
+                if (SelectedNode == null)
+                    Nodes.Add(new TreeNode
+                    {
+                        Id = container.Id,
+                        Name = container.Name,
+                        Icon = container.Icon,
+                        Type = nameof(Container),
+                        Parent = null,
+                        IsLeaf = true
+                    });
+                else
                 {
-                    Id = container.Id,
-                    Name = container.Name,
-                    Icon = container.Icon,
-                    Type = nameof(Container),
-                    Parent = null,
-                    IsLeaf = true
-                });
+                    if (SelectedNode.Type == nameof(Item))
+                    {
+                        App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
+                        return;
+                    }
+                    SelectedNode.IsLeaf = false;
+                    await _context.InsertHierarchy(new Hierarchy
+                    {
+                        ParentId = SelectedNode.Id,
+                        ChildId = container.Id,
+                        ChildType = nameof(Item)
+                    });
+                    SelectedNode.Children.Clear();
+                    await LoadChildren(SelectedNode);
+                }
             }
+            
         }
     }
 }

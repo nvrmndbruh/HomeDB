@@ -12,19 +12,18 @@
     </ContentPage.BindingContext>
 
     <AbsoluteLayout>
-        <Border AbsoluteLayout.LayoutBounds="20, 0, 370, 60"
-                Padding="4, 0, 0 , 1">
+        <Border AbsoluteLayout.LayoutBounds="20, 0, 370, 50"
+                Padding="0, 0, 0 , 1">
             <Border.StrokeShape>
-                <RoundRectangle CornerRadius="20"/>
+                <RoundRectangle CornerRadius="21"/>
             </Border.StrokeShape>
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
             </Border.GestureRecognizers>
-            <HorizontalStackLayout Spacing="10">
+            <HorizontalStackLayout Spacing="20">
                 <Button ImageSource="{FontImageSource FontFamily=FASolid, Glyph={x:Static fa:Solid.MagnifyingGlass}, Color={StaticResource SummerGreen}}"
-                HeightRequest="48"
-                WidthRequest="48"
-                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"/>
+                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:MainViewModel}}, Path=SearchCommand}"
+                        WidthRequest="10"/>
                 <Label Text="Поиск"
                    VerticalOptions="Center" FontSize="20"/>
             </HorizontalStackLayout>

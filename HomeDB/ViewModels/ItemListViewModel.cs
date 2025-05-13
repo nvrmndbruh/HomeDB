@@ -27,7 +27,6 @@ namespace HomeDB.ViewModels
         {
             var items = await _context.GetItems();
             var itemCategories = await _context.GetItemCategories();
-            //var available = item.Where(i => !itemCategories.)
 
             foreach (var item in items
                 .Where(i => !itemCategories.Any(ic => Node.Id == ic.CategoryId && i.Id == ic.ItemId))
