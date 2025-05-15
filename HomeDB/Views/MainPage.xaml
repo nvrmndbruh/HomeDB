@@ -35,8 +35,7 @@
                 LoadChildrenCommand="{Binding LoadChildrenCommand}"
                 Padding="10"
                 SelectionMode="Single"
-                SelectedItem="{Binding SelectedNode}"
-                IsExpandedPropertyName="IsExpanded">
+                SelectedItem="{Binding SelectedNode}">
                 <material:TreeView.ItemTemplate>
                     <DataTemplate>
                         <Grid ColumnSpacing="10">

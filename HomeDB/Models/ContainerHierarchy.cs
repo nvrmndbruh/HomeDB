@@ -2,7 +2,7 @@
 
 namespace HomeDB.Models
 {
-    public class Hierarchy
+    public class ContainerHierarchy
     {
         [AutoIncrement, PrimaryKey]
         public int Id { get; set; }
@@ -10,6 +10,5 @@ namespace HomeDB.Models
         public int ParentId { get; set; }
         [Indexed]
         public int ChildId { get; set; }
-        public string ChildType { get; set; }
     }
 }

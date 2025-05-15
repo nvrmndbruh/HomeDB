@@ -23,46 +23,44 @@ namespace HomeDB.ViewModels
 
         DatabaseContext _context = new();
 
-        async Task LoadChildrenAsync(TreeNode parent)
+        private async Task LoadChildren(TreeNode parent)
         {
             var containers = await _context.GetContainers();
             var hierarchies = await _context.GetHierarchies();
             var items = await _context.GetItems();
+            var itemContainers = await _context.GetItemContainers();
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
-                if (hierarchy.ChildType == nameof(Container))
+                var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
+                if (container != null)
                 {
-                    var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
-                    if (container != null)
+                    var hasChildren = hierarchies.Any(h => h.ParentId == container.Id);
+                    parent.Children.Add(new TreeNode
                     {
-                        var hasChildren = hierarchies.Any(h => h.ParentId == container.Id);
-                        parent.Children.Add(new TreeNode
-                        {
-                            Id = container.Id,
-                            Name = container.Name,
-                            Icon = container.Icon,
-                            Type = nameof(Container),
-                            IsLeaf = !hasChildren,
-                            Parent = parent
-                        });
-                    }
+                        Id = container.Id,
+                        Name = container.Name,
+                        Icon = container.Icon,
+                        Type = nameof(Container),
+                        IsLeaf = !hasChildren,
+                        Parent = parent
+                    });
                 }
-                else if (hierarchy.ChildType == nameof(Item))
+            }
+            foreach (var itemContainer in itemContainers.Where(ic => ic.ContainerId == parent.Id))
+            {
+                var item = items.FirstOrDefault(i => i.Id == itemContainer.ItemId);
+                if (item != null)
                 {
-                    var item = items.FirstOrDefault(i => i.Id == hierarchy.ChildId);
-                    if (item != null)
+                    parent.Children.Add(new TreeNode
                     {
-                        parent.Children.Add(new TreeNode
-                        {
-                            Id = item.Id,
-                            Name = item.Name,
-                            Icon = item.Icon,
-                            Type = nameof(Item),
-                            IsLeaf = true,
-                            Parent = parent
-                        });
-                    }
+                        Id = item.Id,
+                        Name = item.Name,
+                        Icon = item.Icon,
+                        Type = nameof(Item),
+                        IsLeaf = true,
+                        Parent = parent
+                    });
                 }
             }
             if (parent.Children.Count == 0)
@@ -83,7 +81,7 @@ namespace HomeDB.ViewModels
             {
                 Nodes.Remove(Node);
                 Nodes.Add(node);
-                await LoadChildrenAsync(node);
+                await LoadChildren(node);
             }
         }
 
@@ -92,7 +90,7 @@ namespace HomeDB.ViewModels
             if (childMode)
             {
                 parent.Children.Clear();
-                await LoadChildrenAsync(parent);
+                await LoadChildren(parent);
                 return parent;
             }
 
@@ -149,7 +147,7 @@ namespace HomeDB.ViewModels
         async Task EditChild(TreeNode node)
         {
             if (node.Children.Count == 0)
-                await LoadChildrenAsync(node);
+                await LoadChildren(node);
 
             if (node.Type == nameof(Item))
             {
@@ -186,16 +184,21 @@ namespace HomeDB.ViewModels
                 if (node.Type == (nameof(Item)))
                 {
                     var item = await _context.GetItem(node.Id);
-                    await _context.DeleteItem(node.Id);
+                    await _context.DeleteItem(item);
                     Node = await RefreshChildren(Node, node, true);
                 }
                 else
                 {
                     var container = await _context.GetContainer(node.Id);
+
                     var parent = await _context.GetParentHierarchies(node.Id);
-                    var child = await _context.GetChildrenHierarchy(node.Id, node.Type);
-                    await _context.UpdateHierarchy(child.ParentId, parent);
-                    await _context.DeleteContainer(node.Id);
+                    var child = await _context.GetChildrenHierarchy(node.Id);
+                    await _context.UpdateHierarchies(child.ParentId, parent);
+
+                    var childItems = await _context.GetItemContainerByContainer(node.Id);
+                    await _context.UpdateItemContainers(Node.Id, childItems);
+
+                    await _context.DeleteContainer(container);
                     Node = await RefreshChildren(Node, node, true);
                 }
             }
@@ -215,20 +218,22 @@ namespace HomeDB.ViewModels
                 if (Node.Parent != null)
                 {
                     var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
-                    var child = await _context.GetChildrenHierarchy(SelectedContainer.Id, nameof(Container));
-                    await _context.UpdateHierarchy(child.ParentId, parent);
-                    await _context.DeleteContainer(SelectedContainer.Id);
+                    var child = await _context.GetChildrenHierarchy(SelectedContainer.Id);
+                    var childItems = await _context.GetItemContainerByContainer(Node.Id);
+                    await _context.UpdateHierarchies(child.ParentId, parent);
+                    await _context.UpdateItemContainers(child.ParentId, childItems);
+                    await _context.DeleteContainer(SelectedContainer);
                     Node = await RefreshChildren(Node.Parent, Node);
                     await Shell.Current.GoToAsync("..");
                 }
                 else
                 {
                     var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
-                    await _context.DeleteHierarchies(parent);
-                    await _context.DeleteContainer(SelectedContainer.Id);
+                    await _context.DeleteContainer(SelectedContainer);
+
                     foreach (var children in Node.Children)
                     {
-                        children.Parent = Node.Parent;
+                        children.Parent = null;
                         Nodes.Add(children);
                     }
                     Nodes.Remove(Node);

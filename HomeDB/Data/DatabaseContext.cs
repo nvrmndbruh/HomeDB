@@ -20,9 +20,10 @@ namespace HomeDB.Data
 
             await _database.CreateTableAsync<Item>();
             await _database.CreateTableAsync<Container>();
-            await _database.CreateTableAsync<Hierarchy>();
+            await _database.CreateTableAsync<ContainerHierarchy>();
             await _database.CreateTableAsync<Category>();
             await _database.CreateTableAsync<ItemCategory>();
+            await _database.CreateTableAsync<ItemContainer>();
             await _database.ExecuteAsync("PRAGMA foreign_keys = ON;");
         }
 
@@ -55,15 +56,11 @@ namespace HomeDB.Data
             await _database.InsertAsync(item);
         }
 
-        public async Task DeleteItem(int id)
+        public async Task DeleteItem(Item item)
         {
             await Init();
 
-            // удаляем связанные записи из таблицы Hierarchy
-            await _database.Table<Hierarchy>()
-                .DeleteAsync(h => h.ChildId == id && h.ChildType == nameof(Item));
-            await _database.Table<Item>()
-                .DeleteAsync(i => i.Id == id);
+            await _database.DeleteAsync(item);
         }
         #endregion
 
@@ -96,53 +93,53 @@ namespace HomeDB.Data
             await _database.InsertAsync(container);
         }
 
-        public async Task DeleteContainer(int id)
+        public async Task DeleteContainer(Container container)
         {
             await Init();
-            await _database.Table<Container>().DeleteAsync(c => c.Id == id);
+            await _database.DeleteAsync(container);
         }
         #endregion
 
         #region Hierarchy methods
-        public async Task<IEnumerable<Hierarchy>> GetHierarchies()
+        public async Task<IEnumerable<ContainerHierarchy>> GetHierarchies()
         {
             await Init();
 
-            var hierarchies = await _database.Table<Hierarchy>().ToListAsync();
+            var hierarchies = await _database.Table<ContainerHierarchy>().ToListAsync();
             return hierarchies;
         }
 
-        public async Task<Hierarchy> GetChildrenHierarchy(int childId, string childType)
+        public async Task<ContainerHierarchy> GetChildrenHierarchy(int childId)
         {
             await Init();
 
-            var hierarchies = await _database.Table<Hierarchy>()
-                .FirstOrDefaultAsync(c => c.ChildId == childId && c.ChildType == childType);
+            var hierarchies = await _database.Table<ContainerHierarchy>()
+                .FirstOrDefaultAsync(c => c.ChildId == childId);
             return hierarchies;
         }
 
-        public async Task<IEnumerable<Hierarchy>> GetParentHierarchies(int parentId)
+        public async Task<IEnumerable<ContainerHierarchy>> GetParentHierarchies(int parentId)
         {
             await Init();
 
-            var hierarchies = await _database.Table<Hierarchy>()
+            var hierarchies = await _database.Table<ContainerHierarchy>()
                 .Where(p => p.ParentId == parentId)
                 .ToListAsync();
             return hierarchies;
         }
 
-        public async Task UpdateHierarchy(int parentId, IEnumerable<Hierarchy> hierarchies)
+        public async Task UpdateHierarchies(int parentId, IEnumerable<ContainerHierarchy> hierarchies)
         {
             await Init();
 
-            foreach (var hierarchie in hierarchies)
+            foreach (var hierarchy in hierarchies)
             {
-                hierarchie.ParentId = parentId;
-                await _database.UpdateAsync(hierarchie);
+                hierarchy.ParentId = parentId;
+                await _database.UpdateAsync(hierarchy);
             }
         }
 
-        public async Task DeleteHierarchies(IEnumerable<Hierarchy> hierarchies)
+        public async Task DeleteHierarchies(IEnumerable<ContainerHierarchy> hierarchies)
         {
             await Init();
 
@@ -150,7 +147,7 @@ namespace HomeDB.Data
                 await _database.DeleteAsync(hierarchy);
         }
 
-        public async Task InsertHierarchy(Hierarchy hierarchy)
+        public async Task InsertHierarchy(ContainerHierarchy hierarchy)
         {
             await Init();
 
@@ -161,7 +158,7 @@ namespace HomeDB.Data
         {
             await Init();
 
-            await _database.Table<Hierarchy>().DeleteAsync(h => h.Id == id);
+            await _database.Table<ContainerHierarchy>().DeleteAsync(h => h.Id == id);
         }
         #endregion
 
@@ -234,6 +231,56 @@ namespace HomeDB.Data
         {
             await Init();
             await _database.Table<ItemCategory>().DeleteAsync(c => c.Id == id);
+        }
+        #endregion
+
+        #region ItemContainer methods
+        public async Task<IEnumerable<ItemContainer>> GetItemContainers()
+        {
+            await Init();
+
+            var categories = await _database.Table<ItemContainer>().ToListAsync();
+            return categories;
+        }
+
+        public async Task<ItemContainer> GetItemContainerByItem(int id)
+        {
+            await Init();
+
+            var category = await _database.Table<ItemContainer>().FirstOrDefaultAsync(ic => ic.ItemId == id);
+            return category;
+        }
+
+        public async Task<IEnumerable<ItemContainer>> GetItemContainerByContainer(int id)
+        {
+            await Init();
+
+            var itemCategories = await _database.Table<ItemContainer>()
+                .Where(ic => ic.ContainerId == id)
+                .ToListAsync();
+            return itemCategories;
+        }
+
+        public async Task InsertItemContainer(ItemContainer itemContainer)
+        {
+            await Init();
+            await _database.InsertAsync(itemContainer);
+        }
+
+        public async Task UpdateItemContainers(int containerId, IEnumerable<ItemContainer> itemContainers)
+        {
+            await Init();
+            foreach (var itemContainer in itemContainers)
+            {
+                itemContainer.ContainerId = containerId;
+                await _database.UpdateAsync(itemContainer);
+            }
+        }
+
+        public async Task DeleteItemContainer(int id)
+        {
+            await Init();
+            await _database.Table<ItemContainer>().DeleteAsync(c => c.Id == id);
         }
         #endregion
     }

@@ -2,9 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using HomeDB.Data;
 using HomeDB.Models;
-using SQLitePCL;
 using System.Collections.ObjectModel;
-using System.Globalization;
 
 namespace HomeDB.ViewModels
 {
@@ -47,14 +45,16 @@ namespace HomeDB.ViewModels
             var containers = await _context.GetContainers();
             var items = await _context.GetItems();
             var hierarchies = await _context.GetHierarchies();
+            var itemContainers = await _context.GetItemContainers();
 
             var root = containers
-                .Where(c => !hierarchies.Any(h => h.ChildId == c.Id && h.ChildType == nameof(Container)))
+                .Where(c => !hierarchies.Any(h => h.ChildId == c.Id))
                 .ToList();
 
             foreach (var container in root)
             {
-                var hasChildren = hierarchies.Any(h => h.ParentId == container.Id);
+                var hasChildren = hierarchies.Any(h => h.ParentId == container.Id)
+                    || itemContainers.Any(ic => ic.ContainerId == container.Id);
                 var node = new TreeNode
                 {
                     Id = container.Id,
@@ -68,7 +68,7 @@ namespace HomeDB.ViewModels
             }
 
             var standalone = items
-                .Where(i => !hierarchies.Any(h => h.ChildId == i.Id && h.ChildType == nameof(Item)))
+                .Where(i => !itemContainers.Any(h => h.ItemId == i.Id))
                 .ToList();
 
             foreach (var item in standalone)
@@ -92,41 +92,40 @@ namespace HomeDB.ViewModels
             var containers = await _context.GetContainers();
             var hierarchies = await _context.GetHierarchies();
             var items = await _context.GetItems();
+            var itemContainers = await _context.GetItemContainers();
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
-                if (hierarchy.ChildType == nameof(Container))
+                var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
+                if (container != null)
                 {
-                    var container = containers.FirstOrDefault(c => c.Id == hierarchy.ChildId);
-                    if (container != null)
+                    var hasChildren = hierarchies.Any(h => h.ParentId == container.Id)
+                        || itemContainers.Any(ic => ic.ContainerId == container.Id); ;
+                    parent.Children.Add(new TreeNode
                     {
-                        var hasChildren = hierarchies.Any(h => h.ParentId == container.Id);
-                        parent.Children.Add(new TreeNode
-                        {
-                            Id = container.Id,
-                            Name = container.Name,
-                            Icon = container.Icon,
-                            Type = nameof(Container),
-                            IsLeaf = !hasChildren,
-                            Parent = parent
-                        });
-                    }
+                        Id = container.Id,
+                        Name = container.Name,
+                        Icon = container.Icon,
+                        Type = nameof(Container),
+                        IsLeaf = !hasChildren,
+                        Parent = parent
+                    });
                 }
-                else if (hierarchy.ChildType == nameof(Item))
+            }
+            foreach (var itemContainer in itemContainers.Where(ic => ic.ContainerId == parent.Id))
+            {
+                var item = await _context.GetItem(itemContainer.ItemId);
+                if (item != null)
                 {
-                    var item = items.FirstOrDefault(i => i.Id == hierarchy.ChildId);
-                    if (item != null)
+                    parent.Children.Add(new TreeNode
                     {
-                        parent.Children.Add(new TreeNode
-                        {
-                            Id = item.Id,
-                            Name = item.Name,
-                            Icon = item.Icon,
-                            Type = nameof(Item),
-                            IsLeaf = true,
-                            Parent = parent
-                        });
-                    }
+                        Id = item.Id,
+                        Name = item.Name,
+                        Icon = item.Icon,
+                        Type = nameof(Item),
+                        IsLeaf = true,
+                        Parent = parent
+                    });
                 }
             }
             if (parent.Children.Count == 0)
@@ -173,9 +172,19 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task PickUp()
         {
-            var hierarchy = await _context.GetChildrenHierarchy(SelectedNode.Id, SelectedNode.Type);
-            if (hierarchy != null)
-                await _context.DeleteHierarchy(hierarchy.Id);
+            if (SelectedNode.Type == nameof(Container))
+            {
+                var hierarchy = await _context.GetChildrenHierarchy(SelectedNode.Id);
+                if (hierarchy != null)
+                    await _context.DeleteHierarchy(hierarchy.Id);
+            }
+            else
+            {
+                var itemContainer = await _context.GetItemContainerByItem(SelectedNode.Id);
+                if (itemContainer != null)
+                    await _context.DeleteItemContainer(itemContainer.Id);
+            }
+
 
             if (SelectedNode.Parent != null)
             {
@@ -197,18 +206,29 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task DropDown()
         {
-            if (SelectedNode !=  null)
+            if (SelectedNode != null)
             {
                 if (SelectedNode.Type != nameof(Item))
                 {
                     MovingNode.Parent = SelectedNode;
-                    var hierarchy = new Hierarchy
+                    if (MovingNode.Type == nameof(Container))
                     {
-                        ParentId = SelectedNode.Id,
-                        ChildId = MovingNode.Id,
-                        ChildType = MovingNode.Type
-                    };
-                    await _context.InsertHierarchy(hierarchy);
+                        var hierarchy = new ContainerHierarchy
+                        {
+                            ParentId = SelectedNode.Id,
+                            ChildId = MovingNode.Id,
+                        };
+                        await _context.InsertHierarchy(hierarchy);
+                    }
+                    else
+                    {
+                        var itemContainer = new ItemContainer
+                        {
+                            ContainerId = SelectedNode.Id,
+                            ItemId = MovingNode.Id,
+                        };
+                        await _context.InsertItemContainer(itemContainer);
+                    }
                     SelectedNode.Children.Clear();
                     SelectedNode.IsLeaf = false;
                     await LoadChildren(SelectedNode);
@@ -237,7 +257,7 @@ namespace HomeDB.ViewModels
                 "Контейнер");
             if (select == "Вещь")
             {
-                var item = new Item
+                var placeholder = new Item
                 {
                     Name = "Новая вещь",
                     Description = "Создано автоматически",
@@ -246,18 +266,19 @@ namespace HomeDB.ViewModels
                     Price = null
                 };
 
-                await _context.InsertItem(item);
+                await _context.InsertItem(placeholder);
 
                 if (SelectedNode == null)
                     Nodes.Add(new TreeNode
                     {
-                        Id = item.Id,
-                        Name = item.Name,
-                        Icon = item.Icon,
+                        Id = placeholder.Id,
+                        Name = placeholder.Name,
+                        Icon = placeholder.Icon,
                         Type = nameof(Item),
                         Parent = null,
                         IsLeaf = true
                     });
+
                 else
                 {
                     if (SelectedNode.Type == nameof(Item))
@@ -265,14 +286,12 @@ namespace HomeDB.ViewModels
                         App.Current.MainPage.DisplayAlert("Ошибка", "Вы не можете поместить в вещь другую вещь", "ОК");
                         return;
                     }
-                        
 
                     SelectedNode.IsLeaf = false;
-                    await _context.InsertHierarchy(new Hierarchy
+                    await _context.InsertItemContainer(new ItemContainer
                     {
-                        ParentId = SelectedNode.Id,
-                        ChildId = item.Id,
-                        ChildType = nameof(Item)
+                        ContainerId = SelectedNode.Id,
+                        ItemId = placeholder.Id,
                     });
                     SelectedNode.Children.Clear();
                     await LoadChildren(SelectedNode);
@@ -280,20 +299,20 @@ namespace HomeDB.ViewModels
             }
             else if (select == "Контейнер")
             {
-                var container = new Container
+                var placeholder = new Container
                 {
                     Name = "Новая вещь",
                     Icon = "ct_abstract.png",
                 };
 
-                await _context.InsertContainer(container);
+                await _context.InsertContainer(placeholder);
 
                 if (SelectedNode == null)
                     Nodes.Add(new TreeNode
                     {
-                        Id = container.Id,
-                        Name = container.Name,
-                        Icon = container.Icon,
+                        Id = placeholder.Id,
+                        Name = placeholder.Name,
+                        Icon = placeholder.Icon,
                         Type = nameof(Container),
                         Parent = null,
                         IsLeaf = true
@@ -306,17 +325,16 @@ namespace HomeDB.ViewModels
                         return;
                     }
                     SelectedNode.IsLeaf = false;
-                    await _context.InsertHierarchy(new Hierarchy
+                    await _context.InsertHierarchy(new ContainerHierarchy
                     {
                         ParentId = SelectedNode.Id,
-                        ChildId = container.Id,
-                        ChildType = nameof(Item)
+                        ChildId = placeholder.Id,
                     });
                     SelectedNode.Children.Clear();
                     await LoadChildren(SelectedNode);
                 }
             }
-            
+
         }
     }
 }

@@ -70,21 +70,21 @@ namespace HomeDB.ViewModels
             foreach (var item in search)
             {
                 string path = "";
-                var childHierarchy = await _context.GetChildrenHierarchy(item.Id, nameof(Item));
+                var startPlace = await _context.GetItemContainerByItem(item.Id);
 
-                if (childHierarchy == null)
+                if (startPlace == null)
                 {
                     SearchResults.Add(new SearchResult { Name = item.Name, Path = item.Name });
                     break;
                 }
 
 
-                var parent = await _context.GetContainer(childHierarchy.ParentId);
+                var parent = await _context.GetContainer(startPlace.ContainerId);
                 path = parent.Name + "/" + path;
 
                 while (parent != null)
                 {
-                    childHierarchy = await _context.GetChildrenHierarchy(parent.Id, nameof(HomeDB.Models.Container));
+                    var childHierarchy = await _context.GetChildrenHierarchy(parent.Id);
                     if (childHierarchy == null)
                         break;
                     parent = await _context.GetContainer(childHierarchy.ParentId);

@@ -163,7 +163,9 @@ namespace HomeDB.ViewModels
 
             if (confirm)
             {
-                await _context.DeleteItem(Item.Id);
+                await _context.DeleteItem(Item);
+                var items = await _context.GetItems();
+                var itemContainers = await _context.GetItemContainers();
                 DeleteNode(Node);
                 await Shell.Current.GoToAsync("..");
             }
