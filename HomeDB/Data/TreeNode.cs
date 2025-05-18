@@ -9,10 +9,12 @@ namespace HomeDB.Data
 
         public int Id { get; set; }
         public string Type { get; set; }
-        public string Name { get; set; } // Название узла
-        public string? Icon { get; set; } // Путь к иконке (опционально)
+        public string Name { get; set; }
+        public string? Icon { get; set; }
         public bool IsLeaf { get => isLeaf; set => SetProperty(ref isLeaf, value); }
-        public ObservableCollection<TreeNode> Children { get; } = new(); // Дочерние узлы
+
+        public ObservableCollection<TreeNode> Children { get; } = new();
         public TreeNode? Parent { get; set; }
     }
 }
+

@@ -213,7 +213,7 @@ namespace HomeDB.ViewModels
                     MovingNode.Parent = SelectedNode;
                     if (MovingNode.Type == nameof(Container))
                     {
-                        var hierarchy = new ContainerHierarchy
+                        var hierarchy = new Hierarchy
                         {
                             ParentId = SelectedNode.Id,
                             ChildId = MovingNode.Id,
@@ -255,6 +255,9 @@ namespace HomeDB.ViewModels
                 null,
                 "Вещь",
                 "Контейнер");
+
+            TreeNode AddedNode = new TreeNode{ };
+
             if (select == "Вещь")
             {
                 var placeholder = new Item
@@ -268,17 +271,18 @@ namespace HomeDB.ViewModels
 
                 await _context.InsertItem(placeholder);
 
-                if (SelectedNode == null)
-                    Nodes.Add(new TreeNode
-                    {
-                        Id = placeholder.Id,
-                        Name = placeholder.Name,
-                        Icon = placeholder.Icon,
-                        Type = nameof(Item),
-                        Parent = null,
-                        IsLeaf = true
-                    });
+                AddedNode = new TreeNode
+                {
+                    Id = placeholder.Id,
+                    Name = placeholder.Name,
+                    Icon = placeholder.Icon,
+                    Type = nameof(Item),
+                    Parent = null,
+                    IsLeaf = true
+                };
 
+                if (SelectedNode == null)
+                    Nodes.Add(AddedNode);
                 else
                 {
                     if (SelectedNode.Type == nameof(Item))
@@ -301,22 +305,24 @@ namespace HomeDB.ViewModels
             {
                 var placeholder = new Container
                 {
-                    Name = "Новая вещь",
+                    Name = "Новый контейнер",
                     Icon = "ct_abstract.png",
                 };
 
                 await _context.InsertContainer(placeholder);
 
+                AddedNode = new TreeNode
+                {
+                    Id = placeholder.Id,
+                    Name = placeholder.Name,
+                    Icon = placeholder.Icon,
+                    Type = nameof(Container),
+                    Parent = null,
+                    IsLeaf = true
+                };
+
                 if (SelectedNode == null)
-                    Nodes.Add(new TreeNode
-                    {
-                        Id = placeholder.Id,
-                        Name = placeholder.Name,
-                        Icon = placeholder.Icon,
-                        Type = nameof(Container),
-                        Parent = null,
-                        IsLeaf = true
-                    });
+                    Nodes.Add(AddedNode);
                 else
                 {
                     if (SelectedNode.Type == nameof(Item))
@@ -325,7 +331,7 @@ namespace HomeDB.ViewModels
                         return;
                     }
                     SelectedNode.IsLeaf = false;
-                    await _context.InsertHierarchy(new ContainerHierarchy
+                    await _context.InsertHierarchy(new Hierarchy
                     {
                         ParentId = SelectedNode.Id,
                         ChildId = placeholder.Id,
@@ -334,7 +340,8 @@ namespace HomeDB.ViewModels
                     await LoadChildren(SelectedNode);
                 }
             }
-
+            SelectedNode = AddedNode;
+            await Edit();
         }
     }
 }

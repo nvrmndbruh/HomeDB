@@ -20,7 +20,7 @@ namespace HomeDB.Data
 
             await _database.CreateTableAsync<Item>();
             await _database.CreateTableAsync<Container>();
-            await _database.CreateTableAsync<ContainerHierarchy>();
+            await _database.CreateTableAsync<Hierarchy>();
             await _database.CreateTableAsync<Category>();
             await _database.CreateTableAsync<ItemCategory>();
             await _database.CreateTableAsync<ItemContainer>();
@@ -101,34 +101,34 @@ namespace HomeDB.Data
         #endregion
 
         #region Hierarchy methods
-        public async Task<IEnumerable<ContainerHierarchy>> GetHierarchies()
+        public async Task<IEnumerable<Hierarchy>> GetHierarchies()
         {
             await Init();
 
-            var hierarchies = await _database.Table<ContainerHierarchy>().ToListAsync();
+            var hierarchies = await _database.Table<Hierarchy>().ToListAsync();
             return hierarchies;
         }
 
-        public async Task<ContainerHierarchy> GetChildrenHierarchy(int childId)
+        public async Task<Hierarchy> GetChildrenHierarchy(int childId)
         {
             await Init();
 
-            var hierarchies = await _database.Table<ContainerHierarchy>()
+            var hierarchies = await _database.Table<Hierarchy>()
                 .FirstOrDefaultAsync(c => c.ChildId == childId);
             return hierarchies;
         }
 
-        public async Task<IEnumerable<ContainerHierarchy>> GetParentHierarchies(int parentId)
+        public async Task<IEnumerable<Hierarchy>> GetParentHierarchies(int parentId)
         {
             await Init();
 
-            var hierarchies = await _database.Table<ContainerHierarchy>()
+            var hierarchies = await _database.Table<Hierarchy>()
                 .Where(p => p.ParentId == parentId)
                 .ToListAsync();
             return hierarchies;
         }
 
-        public async Task UpdateHierarchies(int parentId, IEnumerable<ContainerHierarchy> hierarchies)
+        public async Task UpdateHierarchies(int parentId, IEnumerable<Hierarchy> hierarchies)
         {
             await Init();
 
@@ -139,7 +139,7 @@ namespace HomeDB.Data
             }
         }
 
-        public async Task DeleteHierarchies(IEnumerable<ContainerHierarchy> hierarchies)
+        public async Task DeleteHierarchies(IEnumerable<Hierarchy> hierarchies)
         {
             await Init();
 
@@ -147,7 +147,7 @@ namespace HomeDB.Data
                 await _database.DeleteAsync(hierarchy);
         }
 
-        public async Task InsertHierarchy(ContainerHierarchy hierarchy)
+        public async Task InsertHierarchy(Hierarchy hierarchy)
         {
             await Init();
 
@@ -158,7 +158,7 @@ namespace HomeDB.Data
         {
             await Init();
 
-            await _database.Table<ContainerHierarchy>().DeleteAsync(h => h.Id == id);
+            await _database.Table<Hierarchy>().DeleteAsync(h => h.Id == id);
         }
         #endregion
 
