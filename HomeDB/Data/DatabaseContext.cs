@@ -5,10 +5,11 @@ namespace HomeDB.Data
 {
     public class DatabaseContext
     {
+        private const string databaseName = "HomeDB.db";
         SQLiteAsyncConnection _database;
 
         public static string DbPath { get; } =
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HomeDB.db");
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), databaseName);
 
 
         async Task Init()
@@ -139,14 +140,6 @@ namespace HomeDB.Data
             }
         }
 
-        public async Task DeleteHierarchies(IEnumerable<Hierarchy> hierarchies)
-        {
-            await Init();
-
-            foreach (var hierarchy in hierarchies)
-                await _database.DeleteAsync(hierarchy);
-        }
-
         public async Task InsertHierarchy(Hierarchy hierarchy)
         {
             await Init();
@@ -191,12 +184,6 @@ namespace HomeDB.Data
             await _database.InsertAsync(category);
         }
 
-        public async Task DeleteCategory(int id)
-        {
-            await Init();
-            await _database.Table<Category>().DeleteAsync(c => c.Id == id);
-        }
-
         public async Task DeleteCategory(Category category)
         {
             await Init();
@@ -211,14 +198,6 @@ namespace HomeDB.Data
 
             var categories = await _database.Table<ItemCategory>().ToListAsync();
             return categories;
-        }
-
-        public async Task<ItemCategory> GetItemCategory(int id)
-        {
-            await Init();
-
-            var category = await _database.Table<ItemCategory>().FirstOrDefaultAsync(c => c.Id == id);
-            return category;
         }
 
         public async Task InsertItemCategory(ItemCategory category)

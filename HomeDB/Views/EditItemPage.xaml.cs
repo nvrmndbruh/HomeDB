@@ -1,10 +1,9 @@
-namespace HomeDB
+namespace HomeDB;
+
+public partial class EditItemPage : ContentPage
 {
-    public partial class EditItemPage : ContentPage
+    public EditItemPage()
     {
-        public EditItemPage()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }
