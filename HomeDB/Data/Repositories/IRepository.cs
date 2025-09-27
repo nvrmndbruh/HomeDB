@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HomeDB.Data.Repositories
+﻿namespace HomeDB.Data.Repositories
 {
-    internal interface IRepository
+    public interface IRepository<T> where T : class
     {
+        public Task<T> GetAsync(int id);
+        public Task<IEnumerable<T>> GetAllAsync();
+        public Task InsertAsync(T entity);
+        public Task UpdateAsync(T entity);
+        public Task DeleteAsync(T entity);
     }
 }
