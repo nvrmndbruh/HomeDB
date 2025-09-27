@@ -55,8 +55,8 @@ namespace HomeDB.ViewModels
         {
             if (token.IsCancellationRequested) return;
 
-            var items = await _context.GetItems();
-            var containers = await _context.GetContainers();
+            var items = await DatabaseContext.Items.GetAllAsync();
+            var containers = await DatabaseContext.Containers.GetAllAsync();
             var search = items.Where(i => !string.IsNullOrEmpty(i.Name) && i.Name.StartsWith(SearchText, StringComparison.OrdinalIgnoreCase))?.ToList();
             
             if (search == null || search.Count == 0 || string.IsNullOrEmpty(SearchText))
@@ -70,7 +70,7 @@ namespace HomeDB.ViewModels
             foreach (var item in search)
             {
                 string path = "";
-                var startPlace = await _context.GetItemContainerByItem(item.Id);
+                var startPlace = await DatabaseContext.ItemContainers.GetByChild(item.Id);
 
                 if (startPlace == null)
                 {
@@ -79,15 +79,15 @@ namespace HomeDB.ViewModels
                 }
 
 
-                var parent = await _context.GetContainer(startPlace.ContainerId);
+                var parent = await DatabaseContext.Containers.GetAsync(startPlace.ContainerId);
                 path = parent.Name + "/" + path;
 
                 while (parent != null)
                 {
-                    var childHierarchy = await _context.GetChildrenHierarchy(parent.Id);
+                    var childHierarchy = await DatabaseContext.Hierarchies.GetByChild(parent.Id);
                     if (childHierarchy == null)
                         break;
-                    parent = await _context.GetContainer(childHierarchy.ParentId);
+                    parent = await DatabaseContext.Containers.GetAsync(childHierarchy.ParentId);
                     path = parent.Name + "/" + path;
                 }
                 path += item.Name;

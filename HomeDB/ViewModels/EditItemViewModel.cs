@@ -20,8 +20,6 @@ namespace HomeDB.ViewModels
         [ObservableProperty]
         public ObservableCollection<TreeNode> nodes;
 
-        DatabaseContext _context = new();
-
         [ObservableProperty]
         public string? priceInput;
 
@@ -137,7 +135,7 @@ namespace HomeDB.ViewModels
             {
                 Item.Price = string.IsNullOrEmpty(PriceInput) ? null : decimal.Parse(PriceInput);
                 Item.Photo = Photo;
-                await _context.UpdateItem(Item);
+                await DatabaseContext.Items.UpdateAsync(Item);
                 var newNode = new TreeNode
                 {
                     Id = Node.Id,
@@ -163,9 +161,7 @@ namespace HomeDB.ViewModels
 
             if (confirm)
             {
-                await _context.DeleteItem(Item);
-                var items = await _context.GetItems();
-                var itemContainers = await _context.GetItemContainers();
+                await DatabaseContext.Items.DeleteAsync(Item.Id);
                 DeleteNode(Node);
                 await Shell.Current.GoToAsync("..");
             }

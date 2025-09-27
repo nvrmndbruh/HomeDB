@@ -9,8 +9,6 @@ namespace HomeDB.ViewModels
     [QueryProperty("Node", "Node")]
     public partial class ItemListViewModel : ObservableObject
     {
-        DatabaseContext _context = new();
-
         [ObservableProperty]
         public ObservableCollection<Item> nodes;
 
@@ -25,8 +23,8 @@ namespace HomeDB.ViewModels
 
         async Task Init()
         {
-            var items = await _context.GetItems();
-            var itemCategories = await _context.GetItemCategories();
+            var items = await DatabaseContext.Items.GetAllAsync();
+            var itemCategories = await DatabaseContext.ItemCategories.GetAllAsync();
 
             foreach (var item in items
                 .Where(i => !itemCategories.Any(ic => Node.Id == ic.CategoryId && i.Id == ic.ItemId))
@@ -44,7 +42,7 @@ namespace HomeDB.ViewModels
                 ItemId = item.Id,
                 CategoryId = Node.Id
             };
-            await _context.InsertItemCategory(itemCategory);
+            await DatabaseContext.ItemCategories.InsertAsync(itemCategory);
             Node.Children.Add(new TreeNode
             {
                 Id = item.Id,

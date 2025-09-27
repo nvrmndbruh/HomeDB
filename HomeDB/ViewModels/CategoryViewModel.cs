@@ -8,8 +8,6 @@ namespace HomeDB.ViewModels
 {
     public partial class CategoryViewModel : ObservableObject
     {
-        public DatabaseContext _context = new();
-
         [ObservableProperty]
         public ObservableCollection<TreeNode> nodes;
 
@@ -25,13 +23,13 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         public async Task LoadChildren(TreeNode parent)
         {
-            var itemCategories = await _context.GetItemCategories();
+            var itemCategories = await DatabaseContext.ItemCategories.GetAllAsync();
             var children = itemCategories.Where(h => h.CategoryId == parent.Id).ToList();
             if (children != null)
             {
                 foreach (var child in children)
                 {
-                    var item = await _context.GetItem(child.ItemId);
+                    var item = await DatabaseContext.Items.GetAsync(child.ItemId);
                     parent.Children.Add(new TreeNode
                     {
                         Id = item.Id,
@@ -47,8 +45,8 @@ namespace HomeDB.ViewModels
 
         private async Task LoadRoot()
         {
-            var categories = await _context.GetCategories();
-            var itemCategories = await _context.GetItemCategories();
+            var categories = await DatabaseContext.Categories.GetAllAsync();
+            var itemCategories = await DatabaseContext.ItemCategories.GetAllAsync();
 
             foreach (var category in categories)
             {
@@ -74,7 +72,7 @@ namespace HomeDB.ViewModels
 
             if (SelectedNode.Type == nameof(Item))
             {
-                var item = await _context.GetItem(SelectedNode.Id);
+                var item = await DatabaseContext.Items.GetAsync(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>
                 {
                     ["Item"] = item,
@@ -84,7 +82,7 @@ namespace HomeDB.ViewModels
             }
             else
             {
-                var category = await _context.GetCategory(SelectedNode.Id);
+                var category = await DatabaseContext.Categories.GetAsync(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditCategoryPage)}", new Dictionary<string, object>
                 {
                     ["SelectedCategory"] = category,
@@ -104,7 +102,7 @@ namespace HomeDB.ViewModels
                 Description = "Создано автоматически"
             };
 
-            await _context.InsertCategory(category);
+            await DatabaseContext.Categories.InsertAsync(category);
 
             Nodes.Add(new TreeNode
             {

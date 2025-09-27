@@ -1,4 +1,5 @@
 ﻿using HomeDB.Data;
+using HomeDB.Data.Repositories;
 using HomeDB.ViewModels;
 using Microsoft.Extensions.Logging;
 using UraniumUI;
@@ -21,6 +22,12 @@ namespace HomeDB
                     fonts.AddFontAwesomeIconFonts();
                 });
 
+            //builder.Services.AddSingleton<ItemRepository>();
+            //builder.Services.AddSingleton<ContainerRepository>();
+            //builder.Services.AddSingleton<CategoryRepository>();
+            //builder.Services.AddSingleton<HierarchyRepository>();
+            //builder.Services.AddSingleton<ItemContainerRepository>();
+            //builder.Services.AddSingleton<ItemCategoryRepository>();
             builder.Services.AddSingleton<DatabaseContext>();
 
             builder.Services.AddTransient<MainPage>();

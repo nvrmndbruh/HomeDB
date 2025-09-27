@@ -8,8 +8,6 @@ namespace HomeDB.ViewModels
 {
     public partial class MainViewModel : ObservableObject
     {
-        public DatabaseContext _context = new();
-
         [ObservableProperty]
         public ObservableCollection<TreeNode> nodes;
 
@@ -42,10 +40,10 @@ namespace HomeDB.ViewModels
 
         private async Task LoadRoot()
         {
-            var containers = await _context.GetContainers();
-            var items = await _context.GetItems();
-            var hierarchies = await _context.GetHierarchies();
-            var itemContainers = await _context.GetItemContainers();
+            var containers = await DatabaseContext.Containers.GetAllAsync();
+            var items = await DatabaseContext.Items.GetAllAsync();
+            var hierarchies = await DatabaseContext.Hierarchies.GetAllAsync();
+            var itemContainers = await DatabaseContext.ItemContainers.GetAllAsync();
 
             var root = containers
                 .Where(c => !hierarchies.Any(h => h.ChildId == c.Id))
@@ -89,10 +87,10 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         private async Task LoadChildren(TreeNode parent)
         {
-            var containers = await _context.GetContainers();
-            var hierarchies = await _context.GetHierarchies();
-            var items = await _context.GetItems();
-            var itemContainers = await _context.GetItemContainers();
+            var containers = await DatabaseContext.Containers.GetAllAsync();
+            var items = await DatabaseContext.Items.GetAllAsync();
+            var hierarchies = await DatabaseContext.Hierarchies.GetAllAsync();
+            var itemContainers = await DatabaseContext.ItemContainers.GetAllAsync();
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
@@ -114,7 +112,7 @@ namespace HomeDB.ViewModels
             }
             foreach (var itemContainer in itemContainers.Where(ic => ic.ContainerId == parent.Id))
             {
-                var item = await _context.GetItem(itemContainer.ItemId);
+                var item = await DatabaseContext.Items.GetAsync(itemContainer.ItemId);
                 if (item != null)
                 {
                     parent.Children.Add(new TreeNode
@@ -148,7 +146,7 @@ namespace HomeDB.ViewModels
 
             if (SelectedNode.Type == nameof(Item))
             {
-                var item = await _context.GetItem(SelectedNode.Id);
+                var item = await DatabaseContext.Items.GetAsync(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>
                 {
                     ["Item"] = item,
@@ -158,7 +156,7 @@ namespace HomeDB.ViewModels
             }
             else
             {
-                var container = await _context.GetContainer(SelectedNode.Id);
+                var container = await DatabaseContext.Containers.GetAsync(SelectedNode.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditContainerPage)}", new Dictionary<string, object>
                 {
                     ["SelectedContainer"] = container,
@@ -174,15 +172,15 @@ namespace HomeDB.ViewModels
         {
             if (SelectedNode.Type == nameof(Container))
             {
-                var hierarchy = await _context.GetChildrenHierarchy(SelectedNode.Id);
+                var hierarchy = await DatabaseContext.Hierarchies.GetByChild(SelectedNode.Id);
                 if (hierarchy != null)
-                    await _context.DeleteHierarchy(hierarchy.Id);
+                    await DatabaseContext.Hierarchies.DeleteAsync(hierarchy.Id);
             }
             else
             {
-                var itemContainer = await _context.GetItemContainerByItem(SelectedNode.Id);
+                var itemContainer = await DatabaseContext.ItemContainers.GetByChild(SelectedNode.Id);
                 if (itemContainer != null)
-                    await _context.DeleteItemContainer(itemContainer.Id);
+                    await DatabaseContext.ItemContainers.DeleteAsync(itemContainer.Id);
             }
 
 
@@ -218,7 +216,7 @@ namespace HomeDB.ViewModels
                             ParentId = SelectedNode.Id,
                             ChildId = MovingNode.Id,
                         };
-                        await _context.InsertHierarchy(hierarchy);
+                        await DatabaseContext.Hierarchies.InsertAsync(hierarchy);
                     }
                     else
                     {
@@ -227,7 +225,7 @@ namespace HomeDB.ViewModels
                             ContainerId = SelectedNode.Id,
                             ItemId = MovingNode.Id,
                         };
-                        await _context.InsertItemContainer(itemContainer);
+                        await DatabaseContext.ItemContainers.InsertAsync(itemContainer);
                     }
                     SelectedNode.Children.Clear();
                     SelectedNode.IsLeaf = false;
@@ -269,7 +267,7 @@ namespace HomeDB.ViewModels
                     Price = null
                 };
 
-                await _context.InsertItem(placeholder);
+                await DatabaseContext.Items.InsertAsync(placeholder);
 
                 AddedNode = new TreeNode
                 {
@@ -292,7 +290,7 @@ namespace HomeDB.ViewModels
                     }
 
                     SelectedNode.IsLeaf = false;
-                    await _context.InsertItemContainer(new ItemContainer
+                    await DatabaseContext.ItemContainers.InsertAsync(new ItemContainer
                     {
                         ContainerId = SelectedNode.Id,
                         ItemId = placeholder.Id,
@@ -309,7 +307,7 @@ namespace HomeDB.ViewModels
                     Icon = "ct_abstract.png",
                 };
 
-                await _context.InsertContainer(placeholder);
+                await DatabaseContext.Containers.InsertAsync(placeholder);
 
                 AddedNode = new TreeNode
                 {
@@ -331,7 +329,7 @@ namespace HomeDB.ViewModels
                         return;
                     }
                     SelectedNode.IsLeaf = false;
-                    await _context.InsertHierarchy(new Hierarchy
+                    await DatabaseContext.Hierarchies.InsertAsync(new Hierarchy
                     {
                         ParentId = SelectedNode.Id,
                         ChildId = placeholder.Id,
