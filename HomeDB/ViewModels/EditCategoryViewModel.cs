@@ -11,8 +11,6 @@ namespace HomeDB.ViewModels
     [QueryProperty("Nodes", "Nodes")]
     public partial class EditCategoryViewModel : ObservableObject
     {
-        public DatabaseContext _context = new();
-
         [ObservableProperty]
         public TreeNode node;
 
@@ -36,13 +34,13 @@ namespace HomeDB.ViewModels
 
         public async Task LoadChildren(TreeNode parent)
         {
-            var itemCategories = await _context.GetItemCategories();
+            var itemCategories = await DatabaseContext.ItemCategories.GetAllAsync();
             var children = itemCategories.Where(h => h.CategoryId == parent.Id).ToList();
             if (children != null)
             {
                 foreach (var child in children)
                 {
-                    var item = await _context.GetItem(child.ItemId);
+                    var item = await DatabaseContext.Items.GetAsync(child.ItemId);
                     parent.Children.Add(new TreeNode
                     {
                         Id = item.Id,
@@ -73,7 +71,7 @@ namespace HomeDB.ViewModels
             }
             else
             {
-                await _context.UpdateCategory(SelectedCategory);
+                await DatabaseContext.Categories.UpdateAsync(SelectedCategory);
                 var newNode = new TreeNode
                 {
                     Id = Node.Id,
@@ -99,7 +97,7 @@ namespace HomeDB.ViewModels
 
             if (confirm)
             {
-                await _context.DeleteCategory(SelectedCategory);
+                await DatabaseContext.Categories.DeleteAsync(SelectedCategory.Id);
                 Nodes.Remove(Node);
                 await Shell.Current.GoToAsync("..");
             }
@@ -108,10 +106,10 @@ namespace HomeDB.ViewModels
         [RelayCommand]
         async Task DeleteChild(TreeNode node)
         {
-            var itemCategories = await _context.GetItemCategories();
+            var itemCategories = await DatabaseContext.ItemCategories.GetAllAsync();
             var delete = itemCategories
                 .FirstOrDefault(d => d.ItemId == node.Id && d.CategoryId == Node.Id);
-            await _context.DeleteItemCategory(delete.Id);
+            await DatabaseContext.ItemCategories.DeleteAsync(delete.Id);
             node.Parent = null;
 
             Node.Children.Clear();
