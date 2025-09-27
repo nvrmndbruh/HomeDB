@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using HomeDB.Data;
 using HomeDB.Models;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace HomeDB.ViewModels
 {
@@ -21,14 +20,12 @@ namespace HomeDB.ViewModels
         [ObservableProperty]
         public ObservableCollection<TreeNode> nodes;
 
-        DatabaseContext _context = new();
-
         private async Task LoadChildren(TreeNode parent)
         {
-            var containers = await _context.GetContainers();
-            var hierarchies = await _context.GetHierarchies();
-            var items = await _context.GetItems();
-            var itemContainers = await _context.GetItemContainers();
+            var containers = await DatabaseContext.Containers.GetAllAsync();;
+            var hierarchies = await DatabaseContext.Hierarchies.GetAllAsync();
+            var items = await DatabaseContext.Items.GetAllAsync();
+            var itemContainers = await DatabaseContext.ItemContainers.GetAllAsync();
 
             foreach (var hierarchy in hierarchies.Where(h => h.ParentId == parent.Id).ToList())
             {
@@ -128,7 +125,7 @@ namespace HomeDB.ViewModels
             }
             else
             {
-                await _context.UpdateContainer(SelectedContainer);
+                await DatabaseContext.Containers.UpdateAsync(SelectedContainer);
                 var newNode = new TreeNode
                 {
                     Id = Node.Id,
@@ -151,7 +148,7 @@ namespace HomeDB.ViewModels
 
             if (node.Type == nameof(Item))
             {
-                var item = await _context.GetItem(node.Id);
+                var item = await DatabaseContext.Items.GetAsync(node.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditItemPage)}", new Dictionary<string, object>
                 {
                     ["Item"] = item,
@@ -160,7 +157,7 @@ namespace HomeDB.ViewModels
             }
             else
             {
-                var container = await _context.GetContainer(node.Id);
+                var container = await DatabaseContext.Containers.GetAsync(node.Id);
                 await Shell.Current.GoToAsync($"{nameof(EditContainerPage)}", new Dictionary<string, object>
                 {
                     ["SelectedContainer"] = container,
@@ -183,22 +180,30 @@ namespace HomeDB.ViewModels
             {
                 if (node.Type == (nameof(Item)))
                 {
-                    var item = await _context.GetItem(node.Id);
-                    await _context.DeleteItem(item);
+                    await DatabaseContext.Items.DeleteAsync(node.Id);
                     Node = await RefreshChildren(Node, node, true);
                 }
                 else
                 {
-                    var container = await _context.GetContainer(node.Id);
+                    var container = await DatabaseContext.Containers.GetAsync(node.Id);
+                    var parent = await DatabaseContext.Hierarchies.GetByParent(node.Id);
+                    var child = await DatabaseContext.Hierarchies.GetByChild(node.Id);
 
-                    var parent = await _context.GetParentHierarchies(node.Id);
-                    var child = await _context.GetChildrenHierarchy(node.Id);
-                    await _context.UpdateHierarchies(child.ParentId, parent);
+                    foreach (Hierarchy h in parent)
+                    {
+                        h.ParentId = child.ParentId;
+                        await DatabaseContext.Hierarchies.UpdateAsync(h);
+                    }
 
-                    var childItems = await _context.GetItemContainerByContainer(node.Id);
-                    await _context.UpdateItemContainers(Node.Id, childItems);
+                    var childItems = await DatabaseContext.ItemContainers.GetByParent(node.Id);
 
-                    await _context.DeleteContainer(container);
+                    foreach(ItemContainer it in childItems)
+                    {
+                        it.ContainerId = Node.Id;
+                        await DatabaseContext.ItemContainers.UpdateAsync(it);
+                    }
+
+                    await DatabaseContext.Containers.DeleteAsync(container.Id);
                     Node = await RefreshChildren(Node, node, true);
                 }
             }
@@ -215,27 +220,39 @@ namespace HomeDB.ViewModels
 
             if (confirm)
             {
+                var parent = await DatabaseContext.Hierarchies.GetByParent(SelectedContainer.Id);
+
                 if (Node.Parent != null)
                 {
-                    var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
-                    var child = await _context.GetChildrenHierarchy(SelectedContainer.Id);
-                    var childItems = await _context.GetItemContainerByContainer(Node.Id);
-                    await _context.UpdateHierarchies(child.ParentId, parent);
-                    await _context.UpdateItemContainers(child.ParentId, childItems);
-                    await _context.DeleteContainer(SelectedContainer);
+                    var child = await DatabaseContext.Hierarchies.GetByChild(SelectedContainer.Id);
+                    var childItems = await DatabaseContext.ItemContainers.GetByParent(Node.Id);
+
+                    foreach (Hierarchy h in parent)
+                    {
+                        h.ParentId = child.ParentId;
+                        await DatabaseContext.Hierarchies.UpdateAsync(h);
+                    }
+
+                    foreach (ItemContainer it in childItems)
+                    {
+                        it.ContainerId = child.ParentId;
+                        await DatabaseContext.ItemContainers.UpdateAsync(it);
+                    }
+
+                    await DatabaseContext.Containers.DeleteAsync(SelectedContainer.Id);
                     Node = await RefreshChildren(Node.Parent, Node);
                     await Shell.Current.GoToAsync("..");
                 }
                 else
                 {
-                    var parent = await _context.GetParentHierarchies(SelectedContainer.Id);
-                    await _context.DeleteContainer(SelectedContainer);
+                    await DatabaseContext.Containers.DeleteAsync(SelectedContainer.Id);
 
                     foreach (var children in Node.Children)
                     {
                         children.Parent = null;
                         Nodes.Add(children);
                     }
+
                     Nodes.Remove(Node);
                     await Shell.Current.GoToAsync("..");
                 }
